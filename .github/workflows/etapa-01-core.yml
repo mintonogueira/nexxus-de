@@ -24,12 +24,24 @@ jobs:
           useradd -m nexxus-builder
           printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/apt-get' > /etc/sudoers.d/nexxus-builder
           chmod 0440 /etc/sudoers.d/nexxus-builder
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Executar wrapper Debian como usuário normal
         shell: sh
         run: |
           chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao"
-          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao' && ./scripts/check-posix.sh && ./scripts/build-install-debian.sh"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao' && ./scripts/check-posix.sh && ./scripts/build-install-debian.sh" > /tmp/nexxus-debian.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-debian.log
+          if [ "$status" -ne 0 ]; then
+            # O conector de automação consegue recuperar annotations mesmo
+            # quando o arquivo bruto de log não está disponível externamente.
+            tail -n 40 /tmp/nexxus-debian.log | while IFS= read -r line; do
+              printf '::error title=Nexxus Debian CI::%s\n' "$line"
+            done
+            exit "$status"
+          fi
 
   archlinux-current:
     runs-on: ubuntu-latest
@@ -42,9 +54,19 @@ jobs:
           useradd -m nexxus-builder
           printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/nexxus-builder
           chmod 0440 /etc/sudoers.d/nexxus-builder
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Executar wrapper Arch como usuário normal
         shell: sh
         run: |
           chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao"
-          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao' && ./scripts/check-posix.sh && ./scripts/build-install-arch.sh"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao' && ./scripts/check-posix.sh && ./scripts/build-install-arch.sh" > /tmp/nexxus-arch.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-arch.log
+          if [ "$status" -ne 0 ]; then
+            tail -n 40 /tmp/nexxus-arch.log | while IFS= read -r line; do
+              printf '::error title=Nexxus Arch CI::%s\n' "$line"
+            done
+            exit "$status"
+          fi
