@@ -1,48 +1,42 @@
 # Nexxus — Etapa 01 — Core e Fundação Arquitetural
 
-Estado: **EM DESENVOLVIMENTO**.
+Estado: **EM DESENVOLVIMENTO — fundação compilada e testada em Arch Linux current e Debian Trixie**.
 
-Esta pasta pertence exclusivamente à Etapa 01. Não contém implementação de Window Manager, compositor X11/Wayland, tiling, painel, File Manager, Terminal, Settings, Keyring, Disks ou módulos funcionais de etapas posteriores.
+Esta pasta contém exclusivamente a fundação arquitetural da Etapa 01. Não contém Window Manager, compositor X11/Wayland, tiling, workspaces, painel, UI, File Manager, Terminal, Settings, Keyring, Disks ou implementação funcional de etapas posteriores.
 
-## Fundação implementada
+## Crates
 
-- `nexxus-core`: identidade, dependências explícitas, capabilities, registry, lifecycle com preflight/rollback, Event Bus e paths XDG/runtime privados.
-- `nexxus-protocol`: protocolo IPC privado versionado, framing limitado e Unix Domain Socket com endpoint privado.
-- `nexxus-config`: TOML versionado, limite defensivo e gravação atômica.
-- `nexxus-backend-api`: contrato mínimo abstrato para backends gráficos futuros; sem implementação X11/Wayland.
+- `nexxus-core`: identidade, dependências, registry, lifecycle, eventos e paths XDG/runtime.
+- `nexxus-protocol`: protocolo IPC local versionado, framing limitado e Unix Domain Socket privado.
+- `nexxus-config`: configuração TOML versionada com limite defensivo e escrita atômica.
+- `nexxus-backend-api`: contratos abstratos para backends gráficos futuros; nenhuma implementação X11/Wayland.
 
-## Build e empacotamento
+## Decisões técnicas vigentes
 
-Entradas oficiais desta etapa:
+- Rust Edition 2024; MSRV 1.85 para a fundação atual.
+- `#![forbid(unsafe_code)]` nos quatro crates.
+- Core sem runtime assíncrono obrigatório.
+- IPC local por Unix Domain Socket, framing de tamanho explícito e limite de 1 MiB.
+- JSON/Serde no wire interno inicial; protocolo `major.minor` versionado.
+- TOML/Serde para configuração; arquivo temporário + `fsync` + `rename` no mesmo filesystem.
+- Erros tipados com `thiserror` e instrumentação estrutural com `tracing`.
+- Licença herdada do repositório canônico: `GPL-3.0-only`.
+
+## Validação
+
+Validação comum Rust:
+
+```sh
+./scripts/check.sh
+```
+
+Fluxos completos da infraestrutura da etapa:
 
 ```sh
 ./scripts/build-install-arch.sh
 ./scripts/build-install-debian.sh
 ```
 
-Os wrappers são `#!/bin/sh` POSIX e autoprovisionam dependências ausentes da própria distribuição. Build/testes são recusados como root.
+Os wrappers são `#!/bin/sh` 100% POSIX, validam a distribuição, executam build/testes como usuário normal e só elevam operações de gerenciamento de pacotes. Como a Etapa 01 ainda não produz um executável/serviço instalável, o manifesto declara `NEXXUS_INSTALLABLE=0`: staging é exercitado, mas pacote/instalação permanecem N/A para evitar artefatos vazios e estados falsos.
 
-A Etapa 01 ainda não produz um executável/serviço instalável. O manifesto usa `NEXXUS_INSTALLABLE=0`; portanto os wrappers validam build, testes e staging, mas não fabricam pacote vazio nem declaram `EMPACOTADO`/`INSTALADO`.
-
-## Validação direta do workspace
-
-```sh
-./scripts/check-posix.sh
-./scripts/check.sh
-```
-
-`check.sh` executa `rustfmt`, `clippy -D warnings`, testes e `rustdoc -D warnings`.
-
-## Toolchain
-
-- Rust Edition 2024.
-- MSRV: Rust 1.85, compatível com a toolchain empacotada no Debian 13 e suficiente para Edition 2024.
-- Licença do código: `GPL-3.0-only`, coerente com o `LICENSE` da raiz do repositório canônico.
-
-## Repositório
-
-A publicação desta etapa pertence a:
-
-`etapas/etapa-01-core-fundacao/`
-
-no repositório canônico `https://github.com/mintonogueira/nexxus-de`, branch `main`.
+CI canônica: `.github/workflows/etapa-01-core.yml`.

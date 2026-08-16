@@ -40,6 +40,12 @@ jobs:
             done
             exit "$status"
           fi
+      - name: Exportar Cargo.lock resolvido
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-01-cargo-lock-debian-1.85
+          path: etapas/etapa-01-core-fundacao/Cargo.lock
+          if-no-files-found: error
       - name: Gerar cópia formatada para correção
         if: failure()
         shell: sh

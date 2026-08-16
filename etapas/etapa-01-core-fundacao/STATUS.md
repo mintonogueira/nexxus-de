@@ -4,32 +4,38 @@ Data-base: 2026-08-16
 
 | Área | Estado |
 |---|---|
-| Workspace Cargo | implementado; compilação local bloqueada por ausência de toolchain/rede |
-| `nexxus-core` | implementado; revisão estática em andamento |
-| Module Registry | dependências/capabilities/ciclos implementados; testes escritos |
-| Lifecycle + rollback | preflight global, descriptor matching e rollback implementados; testes escritos |
-| Event Bus tipado | implementado; teste escrito |
-| XDG/runtime paths | validação `0700`, ownership e rejeição de symlink implementadas |
-| IPC framing/versionamento | frame completo, limite 1 MiB e negociação implementados |
-| Unix Domain Socket | endpoint privado, stale-socket handling e cleanup por dev+inode implementados |
-| Config TOML/atomicidade | escrita atômica, schema e limite 4 MiB implementados |
-| Backend API abstrata | implementada; nenhum backend concreto |
-| Logging | tracing interno mínimo + logs dos wrappers; política evolutiva |
-| ABI dinâmica de plugins | deliberadamente não implementada nesta revisão |
-| Build Arch/Debian | wrappers POSIX e manifesto implementados |
-| Payload instalável | inexistente nesta etapa (`NEXXUS_INSTALLABLE=0`) |
-| Empacotamento/instalação | N/A enquanto não houver payload; não simulado |
-| Performance baseline | pendente de binário/toolchain executável |
+| Workspace Cargo | **COMPILADO** em Arch Linux current e Debian Trixie pela CI canônica |
+| `nexxus-core` | compilado; Clippy/testes/rustdoc aprovados |
+| Module Registry | implementado e testado: compatibilidade, duplicidade, dependências, capabilities e ciclos |
+| Lifecycle + rollback | implementado e testado, incluindo preflight global e preservação do estado `Failed` |
+| Event Bus tipado | implementado e testado |
+| XDG/runtime paths | implementado e testado; rejeita symlink/permissões inseguras |
+| IPC framing/versionamento | implementado e testado |
+| Unix Domain Socket | endpoint privado implementado; socket ativo, stale socket e symlink testados |
+| Config TOML/atomicidade | implementado e testado; limite de 4 MiB e escrita transacional |
+| Backend API abstrata | implementada; nenhum backend concreto nesta etapa |
+| Logging | instrumentação estrutural mínima via `tracing`; subscriber pertence ao processo futuro que hospedar o Core |
+| ABI dinâmica de plugins | deliberadamente não congelada nesta etapa; contratos de isolamento permanecem abstratos |
+| POSIX wrappers | auditoria estática aprovada; fluxos Arch/Debian executados na CI como usuário normal |
+| Build Release | **APROVADO** nos dois cenários da CI |
+| rustfmt | **APROVADO** |
+| Clippy `-D warnings` | **APROVADO** |
+| Testes Rust | **APROVADO** nos dois cenários |
+| Rustdoc `-D warnings` | **APROVADO** |
+| Staging | executado nos dois cenários |
+| Pacote nativo | **N/A nesta revisão**: a Etapa 01 entrega bibliotecas/contratos e não possui payload de runtime instalável |
+| Instalação | **N/A nesta revisão** pelo mesmo motivo; nenhum pacote vazio é fabricado |
+| GitHub | checkpoint real publicado na `main` do repositório canônico |
 | Módulos posteriores | não desenvolvidos |
 
-## Validações executáveis sem Rust
+## Evidência de validação
 
-- parse/sintaxe dos manifests TOML;
-- `sh -n` e auditoria de bashisms dos wrappers;
-- inspeção de paths/estrutura;
-- verificação de ausência de `unsafe` explícito;
-- revisão de segredos/temporários antes de publicação.
+Workflow: `.github/workflows/etapa-01-core.yml`  
+Run aprovado: `31974201820`  
+Commit validado: `42dc0a0713e4e21c772b3dac28b3edf47a0fab1a`
 
-## Bloqueio ambiental local
+Os jobs `archlinux-current` e `debian-trixie` concluíram com sucesso executando os entrypoints oficiais da própria Etapa 01.
 
-O container desta conversa não possui `rustc`/`cargo` e não consegue resolver os repositórios Debian. Portanto nenhum status `COMPILADO`, `TESTADO`, `EMPACOTADO`, `INSTALADO` ou `VALIDADO` será inferido localmente. A publicação de checkpoint no GitHub pode acionar CI externo para obter evidência real de compilação/testes sem falsificar estado local.
+## Estado global
+
+A fundação está **COMPILADA e TESTADA**, mas a Etapa 01 permanece **EM DESENVOLVIMENTO** até concluir documentação/ADRs, auditoria final, snapshot `.tar.gz`, SHA-256 e handoff. Não há declaração de `EMPACOTADO` ou `INSTALADO` porque não existe payload instalável nesta etapa.
