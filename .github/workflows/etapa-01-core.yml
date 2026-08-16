@@ -86,3 +86,43 @@ jobs:
             done
             exit "$status"
           fi
+
+  snapshot-entrega:
+    needs: [debian-trixie, archlinux-current]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Gerar e validar snapshot da Etapa 01
+        shell: sh
+        run: |
+          set -eu
+          root='Nexxus_Etapa01_Core_0.1.0'
+          out="$GITHUB_WORKSPACE/.delivery"
+          stage="$out/$root"
+          mkdir -p "$stage/etapas" "$stage/.github/workflows"
+          cp -a etapas/etapa-01-core-fundacao "$stage/etapas/"
+          cp .github/workflows/etapa-01-core.yml "$stage/.github/workflows/"
+          cp LICENSE "$stage/"
+          printf '%s\n' \
+            "SNAPSHOT_SOURCE_COMMIT=$GITHUB_SHA" \
+            "GITHUB_RUN_ID=$GITHUB_RUN_ID" \
+            'VERSION=0.1.0' \
+            'STAGE=Etapa 01 - Core e Fundacao Arquitetural' \
+            > "$stage/SNAPSHOT_BUILD_INFO.txt"
+          tar -C "$out" -czf "$out/Nexxus_Etapa01_Core_0.1.0.tar.gz" "$root"
+          tar -tzf "$out/Nexxus_Etapa01_Core_0.1.0.tar.gz" > "$out/contents.txt"
+          if grep -Eq '(^/|(^|/)\.\.(/|$))' "$out/contents.txt"; then
+            printf '%s\n' 'erro: caminho inseguro detectado no snapshot' >&2
+            exit 1
+          fi
+          sha256sum "$out/Nexxus_Etapa01_Core_0.1.0.tar.gz" > "$out/Nexxus_Etapa01_Core_0.1.0.tar.gz.sha256"
+          cat "$out/Nexxus_Etapa01_Core_0.1.0.tar.gz.sha256"
+      - name: Exportar snapshot validado
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nexxus_Etapa01_Core_0.1.0
+          path: |
+            .delivery/Nexxus_Etapa01_Core_0.1.0.tar.gz
+            .delivery/Nexxus_Etapa01_Core_0.1.0.tar.gz.sha256
+            .delivery/contents.txt
+          if-no-files-found: error
