@@ -2,40 +2,39 @@
 
 Data-base: 2026-08-16
 
-| Área | Estado |
-|---|---|
-| Workspace Cargo | **COMPILADO** em Arch Linux current e Debian Trixie pela CI canônica |
-| `nexxus-core` | compilado; Clippy/testes/rustdoc aprovados |
-| Module Registry | implementado e testado: compatibilidade, duplicidade, dependências, capabilities e ciclos |
-| Lifecycle + rollback | implementado e testado, incluindo preflight global e preservação do estado `Failed` |
-| Event Bus tipado | implementado e testado |
-| XDG/runtime paths | implementado e testado; rejeita symlink/permissões inseguras |
-| IPC framing/versionamento | implementado e testado |
-| Unix Domain Socket | endpoint privado implementado; socket ativo, stale socket e symlink testados |
-| Config TOML/atomicidade | implementado e testado; limite de 4 MiB e escrita transacional |
-| Backend API abstrata | implementada; nenhum backend concreto nesta etapa |
-| Logging | instrumentação estrutural mínima via `tracing`; subscriber pertence ao processo futuro que hospedar o Core |
-| ABI dinâmica de plugins | deliberadamente não congelada nesta etapa; contratos de isolamento permanecem abstratos |
-| POSIX wrappers | auditoria estática aprovada; fluxos Arch/Debian executados na CI como usuário normal |
-| Build Release | **APROVADO** nos dois cenários da CI |
-| rustfmt | **APROVADO** |
-| Clippy `-D warnings` | **APROVADO** |
-| Testes Rust | **APROVADO** nos dois cenários |
-| Rustdoc `-D warnings` | **APROVADO** |
-| Staging | executado nos dois cenários |
-| Pacote nativo | **N/A nesta revisão**: a Etapa 01 entrega bibliotecas/contratos e não possui payload de runtime instalável |
-| Instalação | **N/A nesta revisão** pelo mesmo motivo; nenhum pacote vazio é fabricado |
-| GitHub | checkpoint real publicado na `main` do repositório canônico |
-| Módulos posteriores | não desenvolvidos |
+A Etapa 01 — Core e Fundação Arquitetural está **VALIDADA TECNICAMENTE** e em fechamento material da entrega.
 
-## Evidência de validação
+## Validação
 
-Workflow: `.github/workflows/etapa-01-core.yml`  
-Run aprovado: `31974201820`  
-Commit validado: `42dc0a0713e4e21c772b3dac28b3edf47a0fab1a`
+- Workflow: `.github/workflows/etapa-01-core.yml`
+- Run aprovado: `31974713059`
+- Commit técnico validado: `c714fe803fce32f59823d6d5ee7a217aa9d77d77`
+- `archlinux-current`: success
+- `debian-trixie`: success
+- Build Release: aprovado
+- `cargo fmt --check`: aprovado
+- Clippy `-D warnings`: aprovado
+- Testes Rust: aprovados
+- Rustdoc `-D warnings`: aprovado
+- Staging: aprovado nos dois cenários
+- `Cargo.lock`: gerado pelo Cargo e validado nos dois cenários
+- Auditoria POSIX: aprovada
 
-Os jobs `archlinux-current` e `debian-trixie` concluíram com sucesso executando os entrypoints oficiais da própria Etapa 01.
+## Fundação entregue
 
-## Estado global
+- Module Registry, dependências/capabilities e detecção de ciclos.
+- Lifecycle com preflight global, ordenação e rollback reverso preservando falha primária.
+- Event Bus tipado.
+- Paths XDG/runtime com validações de ownership, permissões e symlinks.
+- IPC local versionado com framing limitado e Unix Domain Socket privado.
+- Configuração TOML versionada, limitada e com escrita atômica.
+- Backend API abstrata, sem implementação X11/Wayland nesta etapa.
+- Instrumentação estrutural mínima via `tracing`.
 
-A fundação está **COMPILADA e TESTADA**, mas a Etapa 01 permanece **EM DESENVOLVIMENTO** até concluir documentação/ADRs, auditoria final, snapshot `.tar.gz`, SHA-256 e handoff. Não há declaração de `EMPACOTADO` ou `INSTALADO` porque não existe payload instalável nesta etapa.
+## Distribuição
+
+- Pacote nativo: **N/A** — não existe payload de runtime instalável nesta revisão.
+- Instalação: **N/A** — nenhum pacote vazio é fabricado.
+- Entrega compactada: será gerada a partir da revisão-fonte de fechamento e registrada no handoff final.
+
+Nenhum módulo funcional de etapa posterior foi desenvolvido.

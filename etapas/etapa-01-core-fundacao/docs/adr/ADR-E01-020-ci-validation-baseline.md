@@ -2,16 +2,10 @@
 
 **Status:** aceito — 2026-08-16
 
-## Decisão
+Uma revisão da fundação só é considerada compilada/testada quando os jobs canônicos Arch Linux current e Debian Trixie executarem com sucesso os wrappers da própria etapa, incluindo build Release, `cargo fmt --check`, Clippy `-D warnings`, testes, rustdoc e staging. O `Cargo.lock` versionado também precisa ser aceito nos dois cenários.
 
-Uma revisão da fundação só é considerada compilada/testada quando os dois jobs canônicos — Arch Linux current e Debian Trixie — executarem com sucesso os wrappers da própria etapa.
+## Evidência final 0.1.0
 
-Cada wrapper deve concluir build release, `cargo fmt --check`, `cargo clippy -- -D warnings`, `cargo test`, `cargo doc` com warnings como erro e staging.
+Run `31974713059`, commit `c714fe803fce32f59823d6d5ee7a217aa9d77d77`: ambos os jobs concluíram com sucesso usando o `Cargo.lock` gerado pelo Cargo.
 
-## Evidência inicial
-
-Run `31974201820`, commit `42dc0a0713e4e21c772b3dac28b3edf47a0fab1a`: ambos os jobs concluíram com sucesso.
-
-## Consequência
-
-A CI não substitui testes de runtime de módulos futuros. Ela é a baseline da fundação e deverá evoluir quando novos contratos compartilhados forem introduzidos pelas etapas responsáveis.
+Uma execução intermediária (`31974568491`) detectou checksum incorreto em um lockfile transcrito manualmente. O arquivo foi substituído pelo artefato efetivamente gerado pelo Cargo e toda a matriz foi reexecutada antes do fechamento.
