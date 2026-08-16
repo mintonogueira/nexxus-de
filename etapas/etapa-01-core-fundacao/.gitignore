@@ -1,0 +1,6 @@
+/target/
+/.build/
+/dist/
+*.tmp
+*.swp
+.DS_Store

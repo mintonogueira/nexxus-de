@@ -1,0 +1,50 @@
+# CI real da Etapa 01 nos dois cenários definidos pelo contrato de build.
+name: Etapa 01 - Core
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'etapas/etapa-01-core-fundacao/**'
+      - '.github/workflows/etapa-01-core.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  debian-trixie:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends sudo git ca-certificates passwd
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/apt-get' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v4
+      - name: Executar wrapper Debian como usuário normal
+        shell: sh
+        run: |
+          chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao"
+          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao' && ./scripts/check-posix.sh && ./scripts/build-install-debian.sh"
+
+  archlinux-current:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --needed --noconfirm sudo git ca-certificates
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v4
+      - name: Executar wrapper Arch como usuário normal
+        shell: sh
+        run: |
+          chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao"
+          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao' && ./scripts/check-posix.sh && ./scripts/build-install-arch.sh"
