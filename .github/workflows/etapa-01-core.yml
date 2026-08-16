@@ -35,13 +35,23 @@ jobs:
           set -e
           cat /tmp/nexxus-debian.log
           if [ "$status" -ne 0 ]; then
-            # O conector de automação consegue recuperar annotations mesmo
-            # quando o arquivo bruto de log não está disponível externamente.
             tail -n 40 /tmp/nexxus-debian.log | while IFS= read -r line; do
               printf '::error title=Nexxus Debian CI::%s\n' "$line"
             done
             exit "$status"
           fi
+      - name: Gerar cópia formatada para correção
+        if: failure()
+        shell: sh
+        run: |
+          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-01-core-fundacao' && cargo fmt --all"
+      - name: Exportar fontes formatados
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-01-rustfmt-debian-1.85
+          path: etapas/etapa-01-core-fundacao/crates
+          if-no-files-found: error
 
   archlinux-current:
     runs-on: ubuntu-latest
