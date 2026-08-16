@@ -22,7 +22,9 @@ impl CapabilitySelections {
 pub enum RegistryError {
     #[error("module '{0}' is already registered")]
     DuplicateModule(ModuleId),
-    #[error("module '{module}' requires incompatible Core API {required}; current API is {current}")]
+    #[error(
+        "module '{module}' requires incompatible Core API {required}; current API is {current}"
+    )]
     IncompatibleCoreApi {
         module: ModuleId,
         required: ApiVersion,
@@ -301,8 +303,14 @@ mod tests {
         selections.select(graphics, id("backend-x"));
         let order = registry.resolve_order(&selections).unwrap();
         assert!(
-            order.iter().position(|value| value == &id("backend-x")).unwrap()
-                < order.iter().position(|value| value == &id("consumer")).unwrap()
+            order
+                .iter()
+                .position(|value| value == &id("backend-x"))
+                .unwrap()
+                < order
+                    .iter()
+                    .position(|value| value == &id("consumer"))
+                    .unwrap()
         );
     }
 }

@@ -14,10 +14,9 @@ impl ModuleId {
         if value.is_empty() {
             return Err("module id cannot be empty");
         }
-        if !value
-            .bytes()
-            .all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || matches!(byte, b'-' | b'_'))
-        {
+        if !value.bytes().all(|byte| {
+            byte.is_ascii_lowercase() || byte.is_ascii_digit() || matches!(byte, b'-' | b'_')
+        }) {
             return Err("module id must use lowercase ASCII letters, digits, '-' or '_'");
         }
         Ok(Self(value))
@@ -46,9 +45,7 @@ impl CapabilityId {
             return Err("capability id cannot be empty");
         }
         if !value.bytes().all(|byte| {
-            byte.is_ascii_lowercase()
-                || byte.is_ascii_digit()
-                || matches!(byte, b'-' | b'_' | b'.')
+            byte.is_ascii_lowercase() || byte.is_ascii_digit() || matches!(byte, b'-' | b'_' | b'.')
         }) {
             return Err("capability id contains unsupported characters");
         }

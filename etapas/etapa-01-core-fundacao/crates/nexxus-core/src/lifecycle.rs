@@ -272,7 +272,7 @@ impl LifecycleManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{ApiVersion, IsolationMode, CORE_API_VERSION};
+    use crate::{ApiVersion, CORE_API_VERSION, IsolationMode};
     use std::sync::{Arc, Mutex};
 
     #[derive(Clone, Copy)]
@@ -377,9 +377,7 @@ mod tests {
             }))
             .unwrap();
 
-        assert!(manager
-            .start_all(&CapabilitySelections::default())
-            .is_err());
+        assert!(manager.start_all(&CapabilitySelections::default()).is_err());
         assert_eq!(manager.state(&desc.id), Some(ModuleState::Failed));
         assert_eq!(
             calls.lock().unwrap().as_slice(),
@@ -400,9 +398,7 @@ mod tests {
             }))
             .unwrap();
 
-        assert!(manager
-            .start_all(&CapabilitySelections::default())
-            .is_err());
+        assert!(manager.start_all(&CapabilitySelections::default()).is_err());
         assert_eq!(manager.state(&desc.id), Some(ModuleState::Failed));
         assert_eq!(calls.lock().unwrap().as_slice(), &["initialize", "stop"]);
     }

@@ -5,7 +5,7 @@
 
 #![forbid(unsafe_code)]
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::fs;
 use std::io::{ErrorKind, Read, Write};
 use std::os::unix::fs::{FileTypeExt, MetadataExt, PermissionsExt};
@@ -285,9 +285,11 @@ mod tests {
                 .unwrap(),
             ProtocolVersion::new(1, 1)
         );
-        assert!(ProtocolVersion::new(1, 0)
-            .negotiate(ProtocolVersion::new(2, 0))
-            .is_err());
+        assert!(
+            ProtocolVersion::new(1, 0)
+                .negotiate(ProtocolVersion::new(2, 0))
+                .is_err()
+        );
     }
 
     #[test]

@@ -1,7 +1,7 @@
 //! Typed in-process events owned by the Nexxus Core.
 
 use crate::{ModuleId, ModuleState};
-use std::sync::{mpsc, Arc, Mutex};
+use std::sync::{Arc, Mutex, mpsc};
 
 /// Core-owned events that modules may observe without depending on a concrete
 /// graphics backend or on each other directly.

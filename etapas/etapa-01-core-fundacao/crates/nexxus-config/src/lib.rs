@@ -5,7 +5,7 @@
 
 #![forbid(unsafe_code)]
 
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Write};
 use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
@@ -171,11 +171,7 @@ impl TomlConfigStore {
             .and_then(|value| value.to_str())
             .unwrap_or("config.toml");
         let counter = TEMP_COUNTER.fetch_add(1, Ordering::Relaxed);
-        parent.join(format!(
-            ".{name}.{}.{}.tmp",
-            std::process::id(),
-            counter
-        ))
+        parent.join(format!(".{name}.{}.{}.tmp", std::process::id(), counter))
     }
 
     fn write_and_commit(&self, temp: &Path, bytes: &[u8]) -> Result<(), ConfigError> {
