@@ -1,7 +1,7 @@
 //! Stateful assisted-tiling coordinator built on the WM and Workspace contracts.
 
 use crate::layout::fit_slot;
-use crate::{LayoutError, LayoutSpec, NormalizedRect, OutputArea, OutputId, SnapIntent, SnapTarget};
+use crate::{LayoutError, LayoutSpec, OutputArea, OutputId, SnapIntent, SnapTarget};
 use nexxus_wm::{
     BackendCommandSink, Geometry, PresentationState, WindowId, WindowManager, WindowPlacement,
     WmCommand, WmError,
