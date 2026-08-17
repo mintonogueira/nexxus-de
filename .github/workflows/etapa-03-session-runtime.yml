@@ -3,7 +3,7 @@ name: Etapa 03 - Session Runtime
 
 on:
   push:
-    branches: [main, etapa-03-session-runtime]
+    branches: [main, etapa-03-session-runtime, etapa-03-session-runtime-impl]
     paths:
       - 'etapas/etapa-03-session-runtime/**'
       - 'etapas/etapa-02-window-manager-core/crates/nexxus-wm/**'
