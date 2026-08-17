@@ -102,7 +102,7 @@ impl X11Runtime {
     pub fn output(&self) -> Result<OutputInfo, X11BackendError> {
         Ok(OutputInfo {
             id: OutputId::new(format!("x11-screen-{}", self.screen_num))
-                .map_err(X11BackendError::Operation)?,
+                .map_err(|error| X11BackendError::Operation(error.to_owned()))?,
             name: format!("X11 Screen {}", self.screen_num),
             width: self.width,
             height: self.height,
@@ -556,7 +556,8 @@ pub(crate) fn inspect_output(display: Option<&str>) -> Result<OutputInfo, X11Bac
         .map_err(|error| X11BackendError::Unavailable(error.to_string()))?;
     let screen = conn.setup().roots.get(screen_num).ok_or_else(|| X11BackendError::Unavailable("selected X11 screen does not exist".into()))?;
     Ok(OutputInfo {
-        id: OutputId::new(format!("x11-screen-{screen_num}")).map_err(X11BackendError::Operation)?,
+        id: OutputId::new(format!("x11-screen-{screen_num}"))
+            .map_err(|error| X11BackendError::Operation(error.to_owned()))?,
         name: format!("X11 Screen {screen_num}"),
         width: u32::from(screen.width_in_pixels),
         height: u32::from(screen.height_in_pixels),
