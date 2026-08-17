@@ -5,39 +5,39 @@
 - **Módulo:** `nexxus-ui`
 - **Versão:** 0.1.0
 - **Estado técnico:** VALIDADO
-- **Estado de entrega:** PRONTO PARA MERGE EM `main`
-- **Branch:** `etapa-07-nexxus-ui-core`
-- **Workflow validado:** `31990830331`
+- **Estado de entrega:** ENTREGUE / PUBLICADO
+- **Repositório:** `https://github.com/mintonogueira/nexxus-de`
+- **Branch canônica:** `main`
+- **PR de implementação:** #8
+- **Commit de merge da implementação:** `2dac3b68135d9bf11836a2238c405ee0d513f015`
+- **Workflow validado da branch:** `31990830331`
+- **Workflow pós-merge em main:** `31991101667`
 
-## Implementado
+## Resultado
 
-- fundação do crate e renderer backend-neutral;
-- geometria, escala, tema e métricas;
-- texto, RGBA, SVG e clipping;
-- widgets base, layout, foco, hit-testing e input;
-- API semântica de acessibilidade;
-- demo/harness;
-- testes e automação POSIX Arch/Debian.
+A Etapa 07 entrega a infraestrutura gráfica própria, reutilizável e backend-neutral do Nexxus, sem GTK/Qt e sem tipos concretos X11/Wayland no crate `nexxus-ui`.
 
 ## Validação
 
-- Arch Linux current: SUCCESS;
-- Debian Trixie: SUCCESS;
-- delivery: SUCCESS;
+- Arch Linux current: SUCCESS na branch e em `main`;
+- Debian Trixie: SUCCESS na branch e em `main`;
+- delivery da branch: SUCCESS;
+- delivery em `main`: SKIPPED por design;
 - `cargo build --workspace --release`: aprovado;
 - `cargo fmt`: aprovado;
-- `cargo clippy --workspace --all-targets --all-features -- -D warnings`: aprovado;
-- `cargo test --workspace --all-features`: 8 testes aprovados;
+- Clippy com `-D warnings`: aprovado;
+- 8 testes Rust aprovados;
 - rustdoc com warnings como erro: aprovado;
-- auditoria sem GTK/Qt e sem acoplamento X11/Wayland concreto: aprovada;
-- RSS máximo medido do harness: 6376 KiB;
-- snapshot: `Nexxus_Etapa07_Nexxus_UI_Core_0.1.0.tar.gz`;
-- SHA-256: `effe50d95584d2e49b34252404cafd21f063b3b332361e3cb41d3898f405731e`.
+- auditoria POSIX: aprovada;
+- auditoria sem GTK/Qt e sem acoplamento concreto X11/Wayland: aprovada;
+- RSS máximo do harness: 6376 KiB.
 
-## Empacotamento
+## Entrega
 
-`NEXXUS_INSTALLABLE=0`. O módulo é biblioteca interna e o binário presente é apenas harness de desenvolvimento; não foi criado pacote vazio/artificial nem instalação direta no host.
+- Snapshot: `Nexxus_Etapa07_Nexxus_UI_Core_0.1.0.tar.gz`;
+- SHA-256: `effe50d95584d2e49b34252404cafd21f063b3b332361e3cb41d3898f405731e`;
+- `NEXXUS_INSTALLABLE=0`: biblioteca interna + harness de desenvolvimento, sem pacote runtime artificial.
 
-## Pendência restante
+## Pendências
 
-Somente publicação/merge do estado validado na branch canônica `main` e handoff final pós-merge.
+Nenhuma pendência bloqueante da Etapa 07.
