@@ -16,7 +16,7 @@ icons_dir="$ROOT_DIR/assets/icons"
 wallpapers_dir="$ROOT_DIR/assets/wallpapers"
 tmp_dir="$ROOT_DIR/.build/asset-validation"
 rm -rf "$tmp_dir"
-mkdir -p "$tmp_dir"
+mkdir -p "$tmp_dir" "$ROOT_DIR/metrics"
 
 icon_count=$(find "$icons_dir" -type f -name '*.svg' | wc -l | tr -d ' ')
 wallpaper_count=$(find "$wallpapers_dir" -type f -name '*.svg' | wc -l | tr -d ' ')
