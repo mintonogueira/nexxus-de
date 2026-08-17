@@ -211,10 +211,12 @@ impl X11DesktopShell {
     /// blocking. Semantic requests for later modules are returned to the host.
     pub fn poll_actions(&mut self) -> Result<Vec<DesktopShellAction>, X11DesktopShellError> {
         let index_events = self.runtime.poll_index_updates();
-        if index_events
-            .iter()
-            .any(|event| matches!(event, nexxus_xdg_application_index::ApplicationIndexEvent::Changed(_)))
-        {
+        if index_events.iter().any(|event| {
+            matches!(
+                event,
+                nexxus_xdg_application_index::ApplicationIndexEvent::Changed(_)
+            )
+        }) {
             self.redraw()?;
         }
 
@@ -268,9 +270,7 @@ impl X11DesktopShell {
         if let Some(point) = self.last_pointer {
             self.runtime.shell_mut().open_context_menu(point)?;
         } else {
-            self.runtime
-                .shell_mut()
-                .open_context_menu_from_shortcut()?;
+            self.runtime.shell_mut().open_context_menu_from_shortcut()?;
         }
         self.redraw()?;
         Ok(true)
@@ -323,7 +323,12 @@ impl X11DesktopShell {
                 .map(Some)
                 .map_err(Into::into);
         }
-        if let Some(hit) = self.layout.folders.iter().find(|hit| hit.rect.contains(point)) {
+        if let Some(hit) = self
+            .layout
+            .folders
+            .iter()
+            .find(|hit| hit.rect.contains(point))
+        {
             return Ok(Some(DesktopShellAction::OpenFileManager {
                 path: hit.path.clone(),
             }));
@@ -336,11 +341,9 @@ impl X11DesktopShell {
     }
 
     fn redraw(&mut self) -> Result<(), X11DesktopShellError> {
-        let (frame, layout) = self.painter.render(
-            self.runtime.shell(),
-            self.root_size,
-            self.scale,
-        )?;
+        let (frame, layout) =
+            self.painter
+                .render(self.runtime.shell(), self.root_size, self.scale)?;
         upload_frame(&self.conn, self.root_depth, self.window, self.gc, &frame)?;
         self.layout = layout;
         Ok(())
@@ -403,10 +406,10 @@ fn upload_frame(
     gc: u32,
     frame: &nexxus_ui::Frame,
 ) -> Result<(), X11DesktopShellError> {
-    let width = u16::try_from(frame.size.width)
-        .map_err(|_| X11DesktopShellError::DimensionOverflow)?;
-    let height = u16::try_from(frame.size.height)
-        .map_err(|_| X11DesktopShellError::DimensionOverflow)?;
+    let width =
+        u16::try_from(frame.size.width).map_err(|_| X11DesktopShellError::DimensionOverflow)?;
+    let height =
+        u16::try_from(frame.size.height).map_err(|_| X11DesktopShellError::DimensionOverflow)?;
     let format = conn
         .setup()
         .pixmap_formats

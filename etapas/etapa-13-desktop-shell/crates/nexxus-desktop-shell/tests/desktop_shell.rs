@@ -72,7 +72,12 @@ fn ctrl_escape_target_opens_one_primary_menu() {
     );
     let menu = shell.menu().unwrap();
     assert_eq!(menu.monitor_index, 0);
-    assert!(shell.menu_entries().iter().any(|entry| entry.label == "Applications"));
+    assert!(
+        shell
+            .menu_entries()
+            .iter()
+            .any(|entry| entry.label == "Applications")
+    );
 }
 
 #[test]

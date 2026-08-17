@@ -48,7 +48,10 @@ pub fn entries(page: &MenuPage, snapshot: &IndexSnapshot) -> Vec<MenuEntry> {
             let mut result = Vec::new();
             for category in CATEGORY_ORDER {
                 if snapshot.category(*category).next().is_some() {
-                    result.push(entry(category_label(*category), MenuAction::OpenCategory(*category)));
+                    result.push(entry(
+                        category_label(*category),
+                        MenuAction::OpenCategory(*category),
+                    ));
                 }
             }
             result.push(entry("Back", MenuAction::Back));

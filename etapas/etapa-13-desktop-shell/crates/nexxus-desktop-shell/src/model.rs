@@ -193,7 +193,14 @@ impl DesktopShell {
         Ok(())
     }
 
-    pub fn visible_launchers(&self) -> impl Iterator<Item = (&LauncherPlacement, &nexxus_xdg_application_index::ApplicationRecord)> {
+    pub fn visible_launchers(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &LauncherPlacement,
+            &nexxus_xdg_application_index::ApplicationRecord,
+        ),
+    > {
         self.config.launchers.iter().filter_map(|launcher| {
             self.snapshot
                 .by_id(&launcher.desktop_id)
@@ -222,7 +229,9 @@ impl DesktopShell {
     }
 
     pub fn open_context_menu_from_shortcut(&mut self) -> Result<(), DesktopShellError> {
-        let index = self.primary_monitor_index().ok_or(DesktopShellError::NoMonitor)?;
+        let index = self
+            .primary_monitor_index()
+            .ok_or(DesktopShellError::NoMonitor)?;
         let rect = self.monitors[index].rect;
         self.menu = Some(ContextMenuState {
             page: MenuPage::Root,
@@ -309,7 +318,10 @@ impl DesktopShell {
         self.snapshot = snapshot;
     }
 
-    pub fn replace_monitors(&mut self, monitors: Vec<MonitorGeometry>) -> Result<(), DesktopShellError> {
+    pub fn replace_monitors(
+        &mut self,
+        monitors: Vec<MonitorGeometry>,
+    ) -> Result<(), DesktopShellError> {
         if monitors.is_empty() {
             return Err(DesktopShellError::NoMonitor);
         }
@@ -402,7 +414,8 @@ impl DesktopShellRuntime {
         let mut observed = Vec::new();
         while let Ok(event) = self.index_events.try_recv() {
             if matches!(event, ApplicationIndexEvent::Changed(_)) {
-                self.shell.apply_index_snapshot(self.index_service.snapshot());
+                self.shell
+                    .apply_index_snapshot(self.index_service.snapshot());
             }
             observed.push(event);
         }

@@ -102,9 +102,7 @@ impl AssetSource {
         for root in &self.icon_roots {
             for subdir in SUBDIRS {
                 for extension in EXTENSIONS {
-                    let candidate = root
-                        .join(subdir)
-                        .join(format!("{name}.{extension}"));
+                    let candidate = root.join(subdir).join(format!("{name}.{extension}"));
                     if candidate.is_file() {
                         return Some(candidate);
                     }
@@ -168,7 +166,9 @@ impl DesktopPainter {
             }
             crate::config::WallpaperSelection::File { path } => Some(path.clone()),
         };
-        let fallback = self.assets.builtin_wallpaper_path(crate::config::DEFAULT_WALLPAPER);
+        let fallback = self
+            .assets
+            .builtin_wallpaper_path(crate::config::DEFAULT_WALLPAPER);
         if let Some(path) = requested.or(fallback) {
             if let Ok(asset) = load_graphic(&path) {
                 push_graphic(
@@ -273,8 +273,14 @@ impl DesktopPainter {
         }
         let monitor = shell.monitors()[menu.monitor_index].rect;
         let menu_height = entries.len() as f32 * MENU_ROW_HEIGHT + 2.0;
-        let x = menu.anchor.x.min((monitor.x + monitor.width - MENU_WIDTH).max(monitor.x));
-        let y = menu.anchor.y.min((monitor.y + monitor.height - menu_height).max(monitor.y));
+        let x = menu
+            .anchor
+            .x
+            .min((monitor.x + monitor.width - MENU_WIDTH).max(monitor.x));
+        let y = menu
+            .anchor
+            .y
+            .min((monitor.y + monitor.height - menu_height).max(monitor.y));
         let menu_rect = LogicalRect::new(x, y, MENU_WIDTH, menu_height);
         list.push(DrawCommand::FillRect {
             rect: menu_rect,
@@ -293,7 +299,12 @@ impl DesktopPainter {
                 MENU_ROW_HEIGHT,
             );
             list.push(DrawCommand::Text {
-                rect: LogicalRect::new(row.x + 10.0, row.y + 5.0, row.width - 20.0, row.height - 8.0),
+                rect: LogicalRect::new(
+                    row.x + 10.0,
+                    row.y + 5.0,
+                    row.width - 20.0,
+                    row.height - 8.0,
+                ),
                 text: entry.label,
                 style: self.menu_text_style(),
             });
@@ -396,7 +407,12 @@ fn xdg_icon_roots() -> Vec<PathBuf> {
     }
     let data_dirs = env::var_os("XDG_DATA_DIRS")
         .map(|raw| env::split_paths(&raw).collect::<Vec<_>>())
-        .unwrap_or_else(|| vec![PathBuf::from("/usr/local/share"), PathBuf::from("/usr/share")]);
+        .unwrap_or_else(|| {
+            vec![
+                PathBuf::from("/usr/local/share"),
+                PathBuf::from("/usr/share"),
+            ]
+        });
     roots.extend(data_dirs.into_iter().map(|path| path.join("icons")));
     roots
 }
