@@ -225,7 +225,11 @@ fn parse_argument(token: &Token, file_fields: &mut usize) -> Result<Vec<ExecArgu
     }
 
     if token.value.len() == 2 && token.value.starts_with('%') {
-        let code = token.value.chars().nth(1).expect("two-character field code");
+        let code = token
+            .value
+            .chars()
+            .nth(1)
+            .expect("two-character field code");
         let value = match code {
             'f' => {
                 *file_fields += 1;
@@ -318,7 +322,12 @@ mod tests {
     #[test]
     fn semicolon_is_plain_argv_data_not_shell_syntax() {
         let template = ExecTemplate::parse("printf %%s a;touch-pwned").unwrap();
-        let command = template.expand(&LaunchContext::default(), "Demo", None, Path::new("x.desktop"));
+        let command = template.expand(
+            &LaunchContext::default(),
+            "Demo",
+            None,
+            Path::new("x.desktop"),
+        );
         assert_eq!(command.program, "printf");
         assert_eq!(command.arguments, ["%s", "a;touch-pwned"]);
     }
@@ -353,6 +362,9 @@ mod tests {
     #[test]
     fn literal_percent_is_preserved() {
         let template = ExecTemplate::parse("demo 100%%").unwrap();
-        assert_eq!(template.arguments(), &[ExecArgument::Literal("100%".into())]);
+        assert_eq!(
+            template.arguments(),
+            &[ExecArgument::Literal("100%".into())]
+        );
     }
 }

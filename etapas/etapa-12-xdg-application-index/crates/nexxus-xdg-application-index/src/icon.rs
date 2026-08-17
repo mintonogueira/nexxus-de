@@ -11,10 +11,7 @@ use crate::MainCategory;
 pub enum IconReference {
     ExternalPath(PathBuf),
     ExternalName(String),
-    NexxusFallback {
-        name: String,
-        relative_path: String,
-    },
+    NexxusFallback { name: String, relative_path: String },
 }
 
 impl IconReference {
@@ -29,10 +26,7 @@ impl IconReference {
 
 /// Preserves official application artwork. Nexxus fallbacks are selected only
 /// when `Icon=` is absent/empty, matching the visual contract from Stage 08.
-pub fn resolve_icon_reference(
-    declared: Option<&str>,
-    category: MainCategory,
-) -> IconReference {
+pub fn resolve_icon_reference(declared: Option<&str>, category: MainCategory) -> IconReference {
     if let Some(value) = declared.map(str::trim).filter(|value| !value.is_empty()) {
         let path = Path::new(value);
         return if path.is_absolute() {

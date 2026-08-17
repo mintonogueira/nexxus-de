@@ -46,7 +46,9 @@ pub fn scan(config: &ApplicationIndexConfig) -> Result<crate::IndexSnapshot, Sca
                 diagnostics.push(IndexDiagnostic {
                     path,
                     kind: IndexDiagnosticKind::DuplicateDesktopId,
-                    message: format!("desktop file ID {id} is already claimed by a higher-precedence entry"),
+                    message: format!(
+                        "desktop file ID {id} is already claimed by a higher-precedence entry"
+                    ),
                 });
                 continue;
             }
@@ -125,7 +127,8 @@ pub fn scan(config: &ApplicationIndexConfig) -> Result<crate::IndexSnapshot, Sca
                     diagnostics.push(IndexDiagnostic {
                         path,
                         kind: IndexDiagnosticKind::MissingExec,
-                        message: "Application requires Exec when DBusActivatable is false".to_owned(),
+                        message: "Application requires Exec when DBusActivatable is false"
+                            .to_owned(),
                     });
                     continue;
                 }
@@ -228,7 +231,10 @@ fn collect_desktop_files(
         if file_type.is_symlink() && !fs::metadata(&path).is_ok_and(|meta| meta.is_file()) {
             continue;
         }
-        if path.extension().is_some_and(|extension| extension == "desktop") {
+        if path
+            .extension()
+            .is_some_and(|extension| extension == "desktop")
+        {
             files.push(path);
         }
     }

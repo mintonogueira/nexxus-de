@@ -58,7 +58,10 @@ impl ApplicationIndexConfig {
             .ok_or(ConfigError::HomeUnavailable)?;
 
         let data_dirs = env_absolute_path_list("XDG_DATA_DIRS").unwrap_or_else(|| {
-            vec![PathBuf::from("/usr/local/share"), PathBuf::from("/usr/share")]
+            vec![
+                PathBuf::from("/usr/local/share"),
+                PathBuf::from("/usr/share"),
+            ]
         });
 
         let mut roots = Vec::new();
@@ -82,17 +85,15 @@ impl ApplicationIndexConfig {
         for data_dir in data_dirs {
             let source = if data_dir == Path::new("/var/lib/flatpak/exports/share") {
                 ApplicationSource::SystemFlatpak
-            } else if data_dir.to_string_lossy().contains("/flatpak/exports/share") {
+            } else if data_dir
+                .to_string_lossy()
+                .contains("/flatpak/exports/share")
+            {
                 ApplicationSource::UserFlatpak
             } else {
                 ApplicationSource::SystemXdg
             };
-            push_unique_root(
-                &mut roots,
-                &mut seen,
-                data_dir.join("applications"),
-                source,
-            );
+            push_unique_root(&mut roots, &mut seen, data_dir.join("applications"), source);
         }
 
         push_unique_root(

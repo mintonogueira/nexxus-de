@@ -93,12 +93,18 @@ impl IndexSnapshot {
                 record.main_categories.clone()
             };
             for category in effective {
-                categories.entry(category).or_default().push(record.id.clone());
+                categories
+                    .entry(category)
+                    .or_default()
+                    .push(record.id.clone());
             }
         }
         for values in categories.values_mut() {
             values.sort_by(|left, right| {
-                let left_name = entries.get(left).map(|record| record.name.as_str()).unwrap_or("");
+                let left_name = entries
+                    .get(left)
+                    .map(|record| record.name.as_str())
+                    .unwrap_or("");
                 let right_name = entries
                     .get(right)
                     .map(|record| record.name.as_str())

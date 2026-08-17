@@ -41,7 +41,10 @@ fn indexes_valid_entries_and_keeps_invalid_entries_as_diagnostics() {
     let snapshot = scan(&config(vec![ApplicationRoot::custom(&apps, "fixture")])).unwrap();
     let editor = snapshot.by_id("org.example.Editor.desktop").unwrap();
     assert_eq!(editor.name, "Editor PT");
-    assert_eq!(editor.main_categories, [MainCategory::Development, MainCategory::Utility]);
+    assert_eq!(
+        editor.main_categories,
+        [MainCategory::Development, MainCategory::Utility]
+    );
     assert!(matches!(editor.icon, IconReference::NexxusFallback { .. }));
     assert!(snapshot.by_id("broken.desktop").is_none());
     assert_eq!(snapshot.diagnostics().len(), 1);
@@ -101,7 +104,10 @@ fn flatpak_export_is_indexed_without_invoking_flatpak_cli() {
     .unwrap();
     let entry = snapshot.by_id("org.example.Flat.desktop").unwrap();
     assert_eq!(entry.source, ApplicationSource::UserFlatpak);
-    assert_eq!(entry.icon, IconReference::ExternalName("org.example.Flat".into()));
+    assert_eq!(
+        entry.icon,
+        IconReference::ExternalName("org.example.Flat".into())
+    );
 }
 
 #[test]
@@ -110,7 +116,8 @@ fn filesystem_changes_are_published_without_restarting_service() {
     let apps = temp.path().join("applications");
     fs::create_dir_all(&apps).unwrap();
     let service = ApplicationIndexService::start(config(vec![ApplicationRoot::custom(
-        &apps, "live-fixture",
+        &apps,
+        "live-fixture",
     )]))
     .unwrap();
     let events = service.subscribe();

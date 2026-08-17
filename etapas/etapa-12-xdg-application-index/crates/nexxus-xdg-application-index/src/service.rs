@@ -185,9 +185,7 @@ fn refresh_watch_paths(
         if root.path.is_dir() {
             desired.insert(root.path.clone(), RecursiveMode::Recursive);
         } else if let Some(parent) = nearest_existing_parent(&root.path) {
-            desired
-                .entry(parent)
-                .or_insert(RecursiveMode::NonRecursive);
+            desired.entry(parent).or_insert(RecursiveMode::NonRecursive);
         }
     }
 
