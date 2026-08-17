@@ -18,5 +18,7 @@ nexxus-xdg-application-index = { path = "../etapa-12-xdg-application-index/crate
 serde = { version = "1", features = ["derive"] }
 thiserror = "2"
 x11rb = { version = "0.14.0", default-features = false, features = ["randr"] }
-zbus = { version = "5.18.0", features = ["blocking-api"] }
+# 5.13.2 é a última linha validada upstream com MSRV Rust 1.85; releases
+# posteriores do zbus elevaram o MSRV para Rust 1.87.
+zbus = { version = "=5.13.2", features = ["blocking-api"] }
 tempfile = "3"
