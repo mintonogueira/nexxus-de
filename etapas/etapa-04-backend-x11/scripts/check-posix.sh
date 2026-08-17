@@ -5,8 +5,8 @@ set -eu
 SCRIPT_DIR=$(dirname "$0"); case "$SCRIPT_DIR" in -*) SCRIPT_DIR="./$SCRIPT_DIR" ;; esac
 SCRIPT_DIR=$(CDPATH= cd "$SCRIPT_DIR" && pwd)
 ROOT_DIR=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)
-FILES="$ROOT_DIR/scripts/build-install-arch.sh $ROOT_DIR/scripts/build-install-debian.sh $ROOT_DIR/scripts/check.sh $ROOT_DIR/scripts/check-posix.sh $ROOT_DIR/scripts/lib/common.sh"
-AUDIT_FILES="$ROOT_DIR/scripts/build-install-arch.sh $ROOT_DIR/scripts/build-install-debian.sh $ROOT_DIR/scripts/check.sh $ROOT_DIR/scripts/lib/common.sh"
+FILES="$ROOT_DIR/scripts/build-install-arch.sh $ROOT_DIR/scripts/build-install-debian.sh $ROOT_DIR/scripts/check.sh $ROOT_DIR/scripts/check-posix.sh $ROOT_DIR/scripts/create-delivery.sh $ROOT_DIR/scripts/lib/common.sh"
+AUDIT_FILES="$ROOT_DIR/scripts/build-install-arch.sh $ROOT_DIR/scripts/build-install-debian.sh $ROOT_DIR/scripts/check.sh $ROOT_DIR/scripts/create-delivery.sh $ROOT_DIR/scripts/lib/common.sh"
 
 sh -n "$ROOT_DIR/manifests/etapa-04.conf"
 for file in $FILES; do
