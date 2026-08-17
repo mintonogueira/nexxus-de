@@ -1,0 +1,20 @@
+[workspace]
+members = ["crates/nexxus-window-chrome"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "GPL-3.0-only"
+
+[workspace.dependencies]
+nexxus-backend-api = { path = "../etapa-01-core-fundacao/crates/nexxus-backend-api" }
+nexxus-wm = { path = "../etapa-02-window-manager-core/crates/nexxus-wm" }
+nexxus-backend-x11 = { path = "../etapa-04-backend-x11/crates/nexxus-backend-x11" }
+nexxus-workspaces = { path = "../etapa-05-workspace-manager/crates/nexxus-workspaces" }
+nexxus-tiling = { path = "../etapa-06-tiling-engine/crates/nexxus-tiling" }
+nexxus-ui = { path = "../etapa-07-nexxus-ui-core/crates/nexxus-ui" }
+nexxus-assets = { path = "../etapa-08-visual-assets/crates/nexxus-assets" }
+thiserror = "2"
+x11rb = { version = "0.14.0", default-features = false }
