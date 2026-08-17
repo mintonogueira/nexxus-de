@@ -1,6 +1,6 @@
 # Nexxus — Etapa 07 — Nexxus UI Core
 
-**Status:** `VALIDADO / PRONTO PARA MERGE`
+**Status:** `VALIDADO / ENTREGUE / PUBLICADO`
 
 Esta etapa implementa `nexxus-ui`, a camada gráfica própria e backend-neutral do Nexxus. O crate não usa GTK/Qt e não contém tipos concretos X11/Wayland. Widgets produzem uma `DisplayList`; o `SoftwareRenderer` transforma essa lista em um frame RGBA8 que um adapter gráfico pode apresentar.
 
@@ -20,14 +20,19 @@ Esta etapa implementa `nexxus-ui`, a camada gráfica própria e backend-neutral 
 
 ## Validação real
 
-Workflow `31990830331`:
+Workflow da branch `31990830331`:
 
 - Arch Linux current: **SUCCESS**;
 - Debian Trixie: **SUCCESS**;
-- delivery/snapshot: **SUCCESS**;
-- testes Rust: **8 aprovados**;
-- fmt, Clippy com `-D warnings`, rustdoc e auditorias de fronteira: **aprovados**;
-- RSS máximo do harness medido no cenário Debian: **6376 KiB**.
+- delivery/snapshot: **SUCCESS**.
+
+Workflow pós-merge em `main` `31991101667`:
+
+- Arch Linux current: **SUCCESS**;
+- Debian Trixie: **SUCCESS**;
+- delivery: **SKIPPED por design**, porque o snapshot validado já estava versionado.
+
+Também foram aprovados 8 testes Rust, fmt, Clippy com `-D warnings`, rustdoc e auditorias de fronteira. O RSS máximo medido do harness foi **6376 KiB**.
 
 ## Fronteiras preservadas
 
