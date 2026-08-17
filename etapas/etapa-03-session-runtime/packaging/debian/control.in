@@ -1,0 +1,9 @@
+Package: nexxus-session
+Version: @VERSION@
+Section: utils
+Priority: optional
+Architecture: @ARCH@
+Maintainer: Nexxus Project <noreply@example.invalid>
+Depends: libc6, libgcc-s1
+Description: Nexxus session runtime and lifecycle orchestrator
+ Coordinates backend selection, module bootstrap, diagnostics and orderly shutdown.

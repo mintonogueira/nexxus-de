@@ -1,0 +1,171 @@
+# CI real da Etapa 03 nos dois cenários definidos pela governança de build.
+name: Etapa 03 - Session Runtime
+
+on:
+  push:
+    branches: [main, etapa-03-session-runtime]
+    paths:
+      - 'etapas/etapa-03-session-runtime/**'
+      - 'etapas/etapa-02-window-manager-core/crates/nexxus-wm/**'
+      - 'etapas/etapa-01-core-fundacao/crates/nexxus-core/**'
+      - 'etapas/etapa-01-core-fundacao/crates/nexxus-protocol/**'
+      - 'etapas/etapa-01-core-fundacao/crates/nexxus-config/**'
+      - 'etapas/etapa-01-core-fundacao/crates/nexxus-backend-api/**'
+      - '.github/workflows/etapa-03-session-runtime.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  debian-trixie:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends sudo git ca-certificates passwd
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/apt-get' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v5
+      - name: Executar wrapper Debian como usuário normal
+        shell: sh
+        run: |
+          chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas/etapa-03-session-runtime"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-03-session-runtime' && sh ./scripts/check-posix.sh && sh ./scripts/build-install-debian.sh" > /tmp/nexxus-debian.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-debian.log
+          if [ "$status" -ne 0 ]; then
+            tail -n 100 /tmp/nexxus-debian.log | while IFS= read -r line; do
+              printf '::error title=Nexxus Etapa 03 Debian CI::%s\n' "$line"
+            done
+            exit "$status"
+          fi
+      - name: Validar binário instalado
+        shell: sh
+        run: |
+          su -s /bin/sh nexxus-builder -c 'nexxus-session --backend=x11 --check'
+          su -s /bin/sh nexxus-builder -c 'nexxus-session --backend=wayland --check'
+      - name: Exportar lock e pacote Debian
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-03-debian
+          path: |
+            etapas/etapa-03-session-runtime/Cargo.lock
+            etapas/etapa-03-session-runtime/dist/debian/*.deb
+          if-no-files-found: error
+
+  archlinux-current:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --needed --noconfirm sudo git ca-certificates shadow
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v5
+      - name: Executar wrapper Arch como usuário normal
+        shell: sh
+        run: |
+          chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas/etapa-03-session-runtime"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-03-session-runtime' && sh ./scripts/check-posix.sh && sh ./scripts/build-install-arch.sh" > /tmp/nexxus-arch.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-arch.log
+          if [ "$status" -ne 0 ]; then
+            tail -n 100 /tmp/nexxus-arch.log | while IFS= read -r line; do
+              printf '::error title=Nexxus Etapa 03 Arch CI::%s\n' "$line"
+            done
+            exit "$status"
+          fi
+      - name: Validar binário instalado
+        shell: sh
+        run: |
+          su -s /bin/sh nexxus-builder -c 'nexxus-session --backend=x11 --check'
+          su -s /bin/sh nexxus-builder -c 'nexxus-session --backend=wayland --check'
+      - name: Exportar pacote Arch
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-03-arch
+          path: etapas/etapa-03-session-runtime/dist/arch/*.pkg.tar.*
+          if-no-files-found: error
+
+  snapshot-entrega:
+    needs: [debian-trixie, archlinux-current]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Recuperar artefatos validados
+        uses: actions/download-artifact@v5
+        with:
+          pattern: etapa-03-*
+          path: .validated
+          merge-multiple: false
+      - name: Incorporar lock e pacotes na árvore da etapa
+        shell: sh
+        run: |
+          set -eu
+          cp .validated/etapa-03-debian/Cargo.lock etapas/etapa-03-session-runtime/Cargo.lock
+          mkdir -p etapas/etapa-03-session-runtime/dist/debian etapas/etapa-03-session-runtime/dist/arch
+          cp .validated/etapa-03-debian/dist/debian/*.deb etapas/etapa-03-session-runtime/dist/debian/
+          cp .validated/etapa-03-arch/dist/arch/*.pkg.tar.* etapas/etapa-03-session-runtime/dist/arch/
+      - name: Gerar e validar snapshot
+        shell: sh
+        run: |
+          set -eu
+          root='Nexxus_Etapa03_Session_Runtime_0.1.0'
+          out="$GITHUB_WORKSPACE/.delivery"
+          stage="$out/$root"
+          mkdir -p "$stage/etapas" "$stage/.github/workflows" etapas/etapa-03-session-runtime/entrega
+          cp -a etapas/etapa-03-session-runtime "$stage/etapas/"
+          cp .github/workflows/etapa-03-session-runtime.yml "$stage/.github/workflows/"
+          cp LICENSE "$stage/"
+          printf '%s\n' \
+            "SNAPSHOT_SOURCE_COMMIT=$GITHUB_SHA" \
+            "GITHUB_RUN_ID=$GITHUB_RUN_ID" \
+            'VERSION=0.1.0' \
+            'STAGE=Etapa 03 - Session Runtime' \
+            > "$stage/SNAPSHOT_BUILD_INFO.txt"
+          tar -C "$out" -czf "$out/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz" "$root"
+          tar -tzf "$out/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz" > "$out/contents.txt"
+          if grep -Eq '(^/|(^|/)\.\.(/|$))' "$out/contents.txt"; then
+            printf '%s\n' 'erro: caminho inseguro detectado no snapshot' >&2
+            exit 1
+          fi
+          sha256sum "$out/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz" > "$out/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz.sha256"
+          cp "$out/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz" etapas/etapa-03-session-runtime/entrega/
+          cp "$out/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz.sha256" etapas/etapa-03-session-runtime/entrega/
+          cat "$out/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz.sha256"
+      - name: Publicar artefatos validados na branch da etapa
+        if: ${{ github.ref_name == 'etapa-03-session-runtime' }}
+        shell: sh
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add etapas/etapa-03-session-runtime/Cargo.lock \
+                  etapas/etapa-03-session-runtime/dist \
+                  etapas/etapa-03-session-runtime/entrega
+          if git diff --cached --quiet; then
+            printf '%s\n' 'artefatos já versionados'
+            exit 0
+          fi
+          git commit -m 'build(etapa-03): publica pacotes e snapshot validados [skip ci]'
+          git push origin HEAD:etapa-03-session-runtime
+      - name: Exportar snapshot validado
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nexxus_Etapa03_Session_Runtime_0.1.0
+          path: |
+            .delivery/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz
+            .delivery/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz.sha256
+            .delivery/contents.txt
+          if-no-files-found: error
