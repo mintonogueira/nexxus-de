@@ -1,19 +1,28 @@
 #!/bin/sh
-# Auditoria conservadora de bashisms nos scripts POSIX da Etapa 11.
+# Auditoria leve contra bashisms proibidos pelos Aditivos 05/07.
+# O próprio auditor não entra na lista para não interpretar seus padrões grep
+# literais como construções Shell reais.
 set -eu
-SCRIPT_DIR=$(dirname "$0"); case "$SCRIPT_DIR" in -*) SCRIPT_DIR="./$SCRIPT_DIR" ;; esac
-SCRIPT_DIR=$(CDPATH= cd "$SCRIPT_DIR" && pwd)
 
+SCRIPT_DIR=$(dirname "$0"); case "$SCRIPT_DIR" in -*) SCRIPT_DIR="./$SCRIPT_DIR" ;; esac
+ROOT_DIR=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)
 status=0
-for file in "$SCRIPT_DIR"/*.sh "$SCRIPT_DIR"/lib/*.sh; do
+
+for file in \
+    "$ROOT_DIR/scripts/build-install-arch.sh" \
+    "$ROOT_DIR/scripts/build-install-debian.sh" \
+    "$ROOT_DIR/scripts/check.sh" \
+    "$ROOT_DIR/scripts/create-delivery.sh" \
+    "$ROOT_DIR/scripts/lib/common.sh"
+do
     [ -f "$file" ] || continue
     first=$(sed -n '1p' "$file")
-    [ "$first" = '#!/bin/sh' ] || { printf 'shebang não POSIX: %s\n' "$file" >&2; status=1; }
-    # Remove comentários antes da busca para não auto-detectar a lista abaixo.
-    code=$(sed 's/[[:space:]]*#.*$//' "$file")
-    printf '%s\n' "$code" | grep -E '\[\[|\]\]|<<<|<\(|>\(|(^|[[:space:]])source[[:space:]]|(^|[[:space:]])declare[[:space:]]|(^|[[:space:]])mapfile[[:space:]]|(^|[[:space:]])coproc[[:space:]]' >/dev/null 2>&1 && {
-        printf 'possível bashism: %s\n' "$file" >&2
+    [ "$first" = '#!/bin/sh' ] || { printf '%s: shebang não POSIX\n' "$file" >&2; status=1; }
+    if grep -n -E '\[\[|\]\]|<<<|<\(|>\(|(^|[[:space:]])source[[:space:]]|(^|[[:space:]])declare[[:space:]]|(^|[[:space:]])local[[:space:]]|\$RANDOM|\$\{![^}]*\}' "$file"; then
+        printf '%s: construção não POSIX detectada\n' "$file" >&2
         status=1
-    }
+    fi
 done
-exit "$status"
+
+[ "$status" -eq 0 ] || exit "$status"
+printf '%s\n' '[ok] wrappers operacionais da Etapa 11 compatíveis com /bin/sh POSIX.'
