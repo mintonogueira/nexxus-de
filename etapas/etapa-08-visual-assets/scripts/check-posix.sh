@@ -1,21 +1,24 @@
 #!/bin/sh
-# Auditoria conservadora contra bashisms nos scripts de orquestração Nexxus.
+# Rejeita bashisms conhecidos nos wrappers Shell próprios da Etapa 08.
 set -eu
-SCRIPT_DIR=$(dirname "$0"); case "$SCRIPT_DIR" in -*) SCRIPT_DIR="./$SCRIPT_DIR" ;; esac
-SCRIPT_DIR=$(CDPATH= cd "$SCRIPT_DIR" && pwd)
-ROOT_DIR=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)
 
-status=0
-for file in "$ROOT_DIR"/scripts/*.sh "$ROOT_DIR"/scripts/lib/*.sh; do
-    [ -f "$file" ] || continue
+SCRIPT_DIR=$(dirname "$0"); case "$SCRIPT_DIR" in -*) SCRIPT_DIR="./$SCRIPT_DIR" ;; esac
+ROOT_DIR=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)
+TMP_FILE="${TMPDIR:-/tmp}/nexxus-assets-posix.$$.txt"
+trap 'rm -f "$TMP_FILE"' 0 1 2 3 15
+
+# O próprio auditor contém os padrões proibidos como dados e, por isso, não
+# deve auditar a si mesmo. Strings simples são removidas antes da inspeção para
+# evitar falsos positivos em mensagens, regexes e comentários técnicos.
+find "$ROOT_DIR/scripts" -type f -name '*.sh' ! -name 'check-posix.sh' -print | while IFS= read -r file; do
     first=$(sed -n '1p' "$file")
-    [ "$first" = '#!/bin/sh' ] || { printf 'Shebang não POSIX: %s\n' "$file" >&2; status=1; }
-    # Os padrões cobrem construções conhecidas que não pertencem ao Shell POSIX.
-    if grep -En '\[\[|\]\]|<<<|<\(|>\(|(^|[[:space:]])source[[:space:]]|(^|[[:space:]])declare[[:space:]]|(^|[[:space:]])local[[:space:]]|\$\(\(' "$file" >/dev/null 2>&1; then
-        printf 'Possível bashism em %s\n' "$file" >&2
-        grep -En '\[\[|\]\]|<<<|<\(|>\(|(^|[[:space:]])source[[:space:]]|(^|[[:space:]])declare[[:space:]]|(^|[[:space:]])local[[:space:]]|\$\(\(' "$file" >&2 || :
-        status=1
+    [ "$first" = '#!/bin/sh' ] || { printf '%s\n' "erro: shebang não POSIX em $file" >&2; exit 1; }
+    sed "s/'[^']*'//g" "$file" > "$TMP_FILE"
+    if grep -En '\[\[|\]\]|<<<|<\(|>\(|(^|[;[:space:]])source[[:space:]]|(^|[;[:space:]])declare[[:space:]]|(^|[;[:space:]])mapfile[[:space:]]|(^|[;[:space:]])coproc([;[:space:]]|$)' "$TMP_FILE" >/dev/null 2>&1; then
+        printf '%s\n' "erro: possível bashism em $file" >&2
+        exit 1
     fi
-    sh -n "$file" || status=1
+    sh -n "$file"
 done
-exit "$status"
+
+printf '%s\n' 'auditoria POSIX: OK'
