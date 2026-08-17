@@ -1,0 +1,130 @@
+# CI real da Etapa 13 nos cenários Arch Linux e Debian com X11/Xvfb.
+name: Etapa 13 - Desktop Shell
+
+on:
+  push:
+    branches: [main, etapa-13-desktop-shell-impl]
+    paths:
+      - 'etapas/etapa-13-desktop-shell/**'
+      - '.github/workflows/etapa-13-desktop-shell.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'etapas/etapa-13-desktop-shell/**'
+      - '.github/workflows/etapa-13-desktop-shell.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  debian-trixie:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends sudo git ca-certificates passwd
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/apt-get' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v5
+      - name: Executar wrapper Debian como usuário normal
+        shell: sh
+        run: |
+          stage="$GITHUB_WORKSPACE/etapas/etapa-13-desktop-shell"
+          chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$stage' && sh ./scripts/check-posix.sh && sh ./scripts/build-install-debian.sh" > /tmp/nexxus-desktop-shell-debian.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-desktop-shell-debian.log
+          if [ "$status" -ne 0 ]; then
+            details=$(tail -n 140 /tmp/nexxus-desktop-shell-debian.log | sed 's/%/%25/g' | awk 'NR == 1 { printf "%s", $0; next } { printf "%%0A%s", $0 }')
+            printf '::error title=Etapa 13 Debian::%s\n' "$details"
+            exit "$status"
+          fi
+      - name: Exportar estado Rust validado no Debian
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-13-debian
+          path: |
+            etapas/etapa-13-desktop-shell/Cargo.lock
+            etapas/etapa-13-desktop-shell/crates/**/*.rs
+          if-no-files-found: error
+
+  archlinux-current:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --needed --noconfirm sudo git ca-certificates shadow
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v5
+      - name: Executar wrapper Arch como usuário normal
+        shell: sh
+        run: |
+          stage="$GITHUB_WORKSPACE/etapas/etapa-13-desktop-shell"
+          chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$stage' && sh ./scripts/check-posix.sh && sh ./scripts/build-install-arch.sh" > /tmp/nexxus-desktop-shell-arch.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-desktop-shell-arch.log
+          if [ "$status" -ne 0 ]; then
+            details=$(tail -n 140 /tmp/nexxus-desktop-shell-arch.log | sed 's/%/%25/g' | awk 'NR == 1 { printf "%s", $0; next } { printf "%%0A%s", $0 }')
+            printf '::error title=Etapa 13 Arch::%s\n' "$details"
+            exit "$status"
+          fi
+
+  delivery:
+    if: github.ref == 'refs/heads/etapa-13-desktop-shell-impl'
+    needs: [debian-trixie, archlinux-current]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: etapa-13-desktop-shell-impl
+      - name: Baixar estado Rust validado
+        uses: actions/download-artifact@v5
+        with:
+          name: etapa-13-debian
+          path: /tmp/etapa-13-debian
+      - name: Consolidar lockfile, formato e snapshot
+        shell: sh
+        run: |
+          stage="$GITHUB_WORKSPACE/etapas/etapa-13-desktop-shell"
+          lock_file=$(find /tmp/etapa-13-debian -type f -name 'Cargo.lock' | head -n 1)
+          [ -f "$lock_file" ] || { echo 'Cargo.lock validado não encontrado' >&2; exit 1; }
+          cp "$lock_file" "$stage/Cargo.lock"
+          cd "$stage"
+          cargo fmt -p nexxus-desktop-shell
+          sh ./scripts/check-posix.sh
+          sh ./scripts/create-delivery.sh
+      - name: Exportar snapshot da entrega
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-13-delivery
+          path: |
+            etapas/etapa-13-desktop-shell/entrega/*.tar.gz
+            etapas/etapa-13-desktop-shell/entrega/*.sha256
+          if-no-files-found: error
+      - name: Versionar estado validado
+        shell: sh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add etapas/etapa-13-desktop-shell
+          if git diff --cached --quiet; then
+            echo 'Artefatos já correspondem ao estado validado.'
+            exit 0
+          fi
+          git commit -m 'build(etapa-13): publica estado e snapshot validados [skip ci]'
+          git push origin HEAD:etapa-13-desktop-shell-impl
