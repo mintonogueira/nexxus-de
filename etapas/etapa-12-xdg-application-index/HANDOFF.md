@@ -1,6 +1,6 @@
 # NEXXUS — HANDOFF — ETAPA 12 — XDG Application Index
 
-**Estado:** `VALIDADO`
+**Estado:** `VALIDADO_E_PUBLICADO`
 
 ## Identificação
 
@@ -9,11 +9,14 @@
 - **Módulo:** `nexxus-xdg-application-index`
 - **Versão:** 0.1.0
 - **Repositório:** `https://github.com/mintonogueira/nexxus-de`
+- **Branch canônica:** `main`
 - **Branch de validação:** `etapa-12-xdg-application-index-impl`
 - **Pull request:** #14
 - **Commit fonte validado:** `bf11fb468a2f6de8d1666f35780e4de95c235d16`
 - **Commit de entrega gerado pelo CI:** `322fd5917b0a2d920c41125fb0d12fafd21b903b`
-- **GitHub Actions:** run `32007086533`
+- **Commit de merge em main:** `d022a70a0fffc9d83a903d282c700404ce221998`
+- **GitHub Actions de validação:** run `32007086533`
+- **GitHub Actions pós-merge em main:** run `32007387601`
 
 ## Implementação entregue
 
@@ -101,7 +104,9 @@ A suíte cobre, entre outros pontos:
 - criação de `.desktop` observada dinamicamente sem reiniciar o serviço;
 - segurança do modelo `Exec` shell-free e expansão de listas em argv separados.
 
-Durante a primeira execução do CI, `clippy -D warnings` apontou duas questões puramente internas (`only_used_in_recursion` e `question_mark`). Ambas foram corrigidas sem alterar o contrato funcional, e o run final acima passou integralmente.
+Durante a primeira execução do CI, `clippy -D warnings` apontou duas questões puramente internas (`only_used_in_recursion` e `question_mark`). Ambas foram corrigidas sem alterar o contrato funcional, e o run final de validação passou integralmente.
+
+Após o merge da PR #14, o run `32007387601` repetiu com sucesso `debian-trixie` e `archlinux-current` diretamente sobre o commit de merge em `main`. O job `delivery` foi corretamente ignorado em `main`, pois o snapshot já havia sido produzido e versionado no run de validação da branch.
 
 ## Snapshot de entrega
 
@@ -156,12 +161,16 @@ Não foram implementados nesta etapa:
 - Application Finder visual;
 - Application Menu visual.
 
-Esses consumidores apenas receberão o contrato produzido por esta etapa em suas próprias conversas.
+Esses consumidores apenas recebem o contrato produzido por esta etapa em suas próprias conversas.
+
+## Publicação
+
+A implementação foi integrada à branch canônica `main` pela PR #14, merge commit `d022a70a0fffc9d83a903d282c700404ce221998`. O código publicado em `main` foi novamente compilado e testado com sucesso nos cenários Arch Linux e Debian pelo run `32007387601`.
 
 ## Próxima etapa recomendada
 
 - **ETAPA ATUAL:** 12 — XDG Application Index
-- **STATUS:** VALIDADO
+- **STATUS:** VALIDADO_E_PUBLICADO
 - **PRÓXIMA ETAPA:** 13 — Desktop Shell
 - **NOVA CONVERSA:** `NEXXUS FASE 13 — Desktop Shell`
 - **OBJETIVO:** implementar a superfície de desktop definida no Plano Mestre consumindo o XDG Application Index validado, sem reabrir a implementação interna desta etapa.
