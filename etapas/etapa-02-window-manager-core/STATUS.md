@@ -2,7 +2,7 @@
 
 Data-base: 2026-08-16
 
-Estado atual: **VALIDADA — ENTREGA 0.1.0 PRONTA PARA `main`**.
+Estado atual: **VALIDADA E ENTREGUE — versão 0.1.0**.
 
 ## Implementado
 
@@ -18,12 +18,16 @@ Estado atual: **VALIDADA — ENTREGA 0.1.0 PRONTA PARA `main`**.
 - workflow GitHub Actions da Etapa 02;
 - `Cargo.lock` gerado pelo Cargo e versionado;
 - scripts operacionais marcados executáveis;
-- snapshot e SHA-256 versionados.
+- snapshot e SHA-256 versionados;
+- handoff final.
 
-## Evidência final da branch
+## Evidência final
 
-- Commit técnico validado: `9cbc6d9fde1f40f0a9b49b525ced8e798f156d95`.
-- GitHub Actions run final: `31980820527` — success.
+- Commit técnico validado na branch: `539f09fbbdba2382d41abf76c1f2db8739b9be71`.
+- GitHub Actions da branch: run `31981061198` — success.
+- Pull Request: `#1` — merged.
+- Commit de merge na `main`: `096271cfdfb3f50b624e4560bb86c7c7b731dcc1`.
+- GitHub Actions pós-merge na `main`: run `31981149587` — success.
 - Arch Linux current: success.
 - Debian Trixie: success.
 - `snapshot-entrega`: success.
@@ -43,6 +47,11 @@ Estado atual: **VALIDADA — ENTREGA 0.1.0 PRONTA PARA `main`**.
 - EMPACOTADO NATIVO: N/A — biblioteca interna sem payload runtime.
 - INSTALADO: N/A.
 - VALIDADO: SIM.
-- ENTREGA_COMPACTADA: VALIDADA / VERSIONADA.
+- ENTREGA_COMPACTADA: VALIDADA / PUBLICADA.
+- STATUS_GITHUB: PUBLICADO NA `main`.
 
-Nenhuma etapa posterior foi iniciada nesta conversa. O próximo passo desta etapa é exclusivamente integrar a entrega validada à `main` e registrar o handoff final.
+## Encerramento
+
+Nenhuma pendência funcional conhecida permanece dentro do escopo da Etapa 02. Nenhuma etapa posterior foi iniciada nesta conversa.
+
+Próxima etapa recomendada: **Etapa 03 — Session Runtime**, obrigatoriamente em nova conversa.

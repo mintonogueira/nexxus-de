@@ -10,7 +10,7 @@ Etapa 02 — Window Manager Core
 
 ## STATUS
 
-**VALIDADA — versão 0.1.0, pronta para integração/publicação na `main`.**
+**VALIDADA E ENTREGUE — versão 0.1.0.**
 
 ## ENTREGÁVEIS PRODUZIDOS
 
@@ -38,7 +38,7 @@ Consumidas da Etapa 01, sem reconstrução:
 - `nexxus-core`;
 - `nexxus-backend-api`.
 
-Dependência Rust adicional utilizada: `thiserror`, já compatível com o padrão de tratamento de erros da fundação. `nexxus-protocol` e `nexxus-config` não foram adicionados porque a Etapa 02 não possui necessidade própria de IPC ou persistência.
+Dependência Rust adicional utilizada: `thiserror`. `nexxus-protocol` e `nexxus-config` não foram adicionados porque a Etapa 02 não possui necessidade própria de IPC ou persistência.
 
 ## CONTRATOS INTERMODULARES
 
@@ -56,20 +56,24 @@ Nenhum handle, tipo ou dependência concreta de X11, Wayland, XWayland, Smithay,
 
 ## TESTES E VALIDAÇÕES EXECUTADOS
 
-GitHub Actions run final da revisão técnica: `31980820527`.
+### Branch da etapa
 
-- commit técnico validado: `9cbc6d9fde1f40f0a9b49b525ced8e798f156d95`;
+- commit final da branch validada: `539f09fbbdba2382d41abf76c1f2db8739b9be71`;
+- GitHub Actions run `31981061198`: success;
 - Arch Linux current: success;
 - Debian Trixie: success;
-- snapshot-entrega: success;
-- `cargo build --workspace --release`: aprovado;
-- `cargo fmt`: aprovado e fontes normalizadas;
-- Clippy com `-D warnings`: aprovado;
-- `cargo test --workspace --all-features`: aprovado;
-- rustdoc com warnings como erro: aprovado;
-- auditoria Shell POSIX: aprovada;
-- auditoria do grafo para ausência de backend gráfico concreto: aprovada;
-- `Cargo.lock`: gerado pelo Cargo e versionado.
+- snapshot-entrega: success.
+
+### Após integração na `main`
+
+- Pull Request: `#1`;
+- commit de merge: `096271cfdfb3f50b624e4560bb86c7c7b731dcc1`;
+- GitHub Actions run `31981149587`: success;
+- Arch Linux current: success;
+- Debian Trixie: success;
+- snapshot-entrega: success.
+
+Em ambos os fluxos pertinentes foram validados build release, rustfmt, Clippy `-D warnings`, testes Rust, rustdoc, auditoria Shell POSIX e ausência de dependência gráfica concreta no grafo da Etapa 02.
 
 ## DISTRIBUIÇÃO / EMPACOTAMENTO
 
@@ -80,15 +84,14 @@ GitHub Actions run final da revisão técnica: `31980820527`.
 - INSTALADO: N/A;
 - VALIDADO: SIM.
 
-A Etapa 02 produz biblioteca interna e declara `NEXXUS_INSTALLABLE=0`. Não existe payload runtime instalável; portanto, conforme a governança já aplicada na fundação, nenhum pacote Arch/Debian vazio foi fabricado e nenhuma instalação artificial foi executada.
+A Etapa 02 produz biblioteca interna e declara `NEXXUS_INSTALLABLE=0`. Não existe payload runtime instalável; nenhum pacote Arch/Debian vazio foi fabricado e nenhuma instalação artificial foi executada.
 
 ## ENTREGA COMPACTADA
 
 - arquivo: `Nexxus_Etapa02_Window_Manager_Core_0.1.0.tar.gz`;
 - path versionado: `etapas/etapa-02-window-manager-core/entrega/Nexxus_Etapa02_Window_Manager_Core_0.1.0.tar.gz`;
 - SHA-256: `26c39a1f87e2d0bc5fe6f1bfa9dd77437b354fe7f62eb59e70224889644ed9e1`;
-- run que gerou/validou o snapshot: `31980820527`;
-- commit que adiciona o snapshot e corrige os modos executáveis dos scripts: `ab51cd12c5663fd29d9131b8f62dc7338f627d41`.
+- commit que adiciona snapshot e modos executáveis dos scripts: `ab51cd12c5663fd29d9131b8f62dc7338f627d41`.
 
 ## DECISÕES TÉCNICAS RELEVANTES
 
@@ -116,15 +119,16 @@ O Window Manager Core ainda não move ou apresenta janelas reais na tela. Isso �
 ## GITHUB
 
 - repositório canônico: `https://github.com/mintonogueira/nexxus-de`;
-- branch da etapa: `etapa-02-window-manager-core`;
+- branch de desenvolvimento: `etapa-02-window-manager-core`;
 - pasta: `etapas/etapa-02-window-manager-core/`;
-- commit técnico validado: `9cbc6d9fde1f40f0a9b49b525ced8e798f156d95`;
-- commit de snapshot/modos executáveis: `ab51cd12c5663fd29d9131b8f62dc7338f627d41`;
-- STATUS_GITHUB neste ponto do handoff: `VALIDADO_NA_BRANCH / PRONTO_PARA_MAIN`.
+- Pull Request: `#1` — merged;
+- commit de merge na `main`: `096271cfdfb3f50b624e4560bb86c7c7b731dcc1`;
+- CI pós-merge: `31981149587` — success;
+- STATUS_GITHUB: **PUBLICADO NA `main`**.
 
 ## PENDÊNCIAS DA ETAPA 02
 
-Nenhuma pendência funcional conhecida dentro do escopo da Etapa 02. Resta somente a operação de governança de integrar esta entrega à `main` e registrar o commit/PR resultante.
+Nenhuma pendência funcional conhecida dentro do escopo aprovado da Etapa 02.
 
 ## PRÓXIMA ETAPA RECOMENDADA
 
