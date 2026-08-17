@@ -1,0 +1,22 @@
+[workspace]
+members = ["crates/nexxus-desktop-shell"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "GPL-3.0-only"
+
+[workspace.dependencies]
+image = { version = "0.25.8", default-features = false, features = ["jpeg", "png", "webp"] }
+nexxus-assets = { path = "../etapa-08-visual-assets/crates/nexxus-assets" }
+nexxus-config = { path = "../etapa-01-core-fundacao/crates/nexxus-config" }
+nexxus-shortcuts = { path = "../etapa-10-shortcuts-core/crates/nexxus-shortcuts" }
+nexxus-ui = { path = "../etapa-07-nexxus-ui-core/crates/nexxus-ui" }
+nexxus-xdg-application-index = { path = "../etapa-12-xdg-application-index/crates/nexxus-xdg-application-index" }
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+x11rb = { version = "0.14.0", default-features = false, features = ["randr"] }
+zbus = { version = "5.18.0", features = ["blocking-api"] }
+tempfile = "3"

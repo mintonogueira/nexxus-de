@@ -1,0 +1,21 @@
+[package]
+name = "nexxus-desktop-shell"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+image.workspace = true
+nexxus-assets.workspace = true
+nexxus-config.workspace = true
+nexxus-shortcuts.workspace = true
+nexxus-ui.workspace = true
+nexxus-xdg-application-index.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+x11rb.workspace = true
+zbus.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
