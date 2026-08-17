@@ -35,7 +35,12 @@ impl Geometry {
         if width == 0 || height == 0 {
             return Err(GeometryError::ZeroSize);
         }
-        Ok(Self { x, y, width, height })
+        Ok(Self {
+            x,
+            y,
+            width,
+            height,
+        })
     }
 
     /// Applies size constraints while preserving the requested position.
@@ -59,7 +64,12 @@ pub struct SizeConstraints {
 
 impl Default for SizeConstraints {
     fn default() -> Self {
-        Self { min_width: 1, min_height: 1, max_width: None, max_height: None }
+        Self {
+            min_width: 1,
+            min_height: 1,
+            max_width: None,
+            max_height: None,
+        }
     }
 }
 
@@ -69,8 +79,12 @@ impl SizeConstraints {
         if self.min_width == 0 || self.min_height == 0 {
             return Err(GeometryError::ZeroMinimum);
         }
-        if self.max_width.is_some_and(|maximum| maximum < self.min_width)
-            || self.max_height.is_some_and(|maximum| maximum < self.min_height)
+        if self
+            .max_width
+            .is_some_and(|maximum| maximum < self.min_width)
+            || self
+                .max_height
+                .is_some_and(|maximum| maximum < self.min_height)
         {
             return Err(GeometryError::InvertedBounds);
         }
@@ -143,7 +157,12 @@ pub struct Window {
 
 impl Window {
     /// Builds a new normal floating window with validated geometry constraints.
-    pub fn new(id: WindowId, geometry: Geometry, constraints: SizeConstraints, metadata: WindowMetadata) -> Result<Self, GeometryError> {
+    pub fn new(
+        id: WindowId,
+        geometry: Geometry,
+        constraints: SizeConstraints,
+        metadata: WindowMetadata,
+    ) -> Result<Self, GeometryError> {
         let geometry = geometry.constrained(constraints)?;
         Ok(Self {
             id,
@@ -161,7 +180,11 @@ impl Window {
     }
 
     pub(crate) fn push_restore_snapshot(&mut self) {
-        self.restore_stack.push(RestoreSnapshot { geometry: self.geometry, placement: self.placement, presentation: self.presentation });
+        self.restore_stack.push(RestoreSnapshot {
+            geometry: self.geometry,
+            placement: self.placement,
+            presentation: self.presentation,
+        });
     }
 
     pub(crate) fn pop_restore_snapshot(&mut self) -> Option<RestoreSnapshot> {
@@ -170,7 +193,9 @@ impl Window {
 
     pub(crate) fn update_geometry(&mut self, geometry: Geometry) -> Result<(), GeometryError> {
         self.geometry = geometry.constrained(self.constraints)?;
-        if self.presentation == PresentationState::Normal && self.placement == WindowPlacement::Floating {
+        if self.presentation == PresentationState::Normal
+            && self.placement == WindowPlacement::Floating
+        {
             self.floating_geometry = self.geometry;
         }
         Ok(())

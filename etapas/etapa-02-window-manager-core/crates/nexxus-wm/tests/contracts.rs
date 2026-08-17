@@ -1,5 +1,8 @@
-use nexxus_wm::{BackendCommandSink, Geometry, SizeConstraints, WindowId, WindowManager, WindowMetadata, WmCommand, WmEvent};
 use nexxus_backend_api::BackendError;
+use nexxus_wm::{
+    BackendCommandSink, Geometry, SizeConstraints, WindowId, WindowManager, WindowMetadata,
+    WmCommand, WmEvent,
+};
 
 struct RecordingSink {
     commands: Vec<WmCommand>,
@@ -31,10 +34,15 @@ fn backend_contract_uses_only_logical_identifiers_and_commands() {
     .unwrap();
 
     let command = wm.request_focus(id(7)).unwrap();
-    let mut sink = RecordingSink { commands: Vec::new() };
+    let mut sink = RecordingSink {
+        commands: Vec::new(),
+    };
     wm.dispatch(&mut sink, &command).unwrap();
 
-    assert_eq!(sink.commands, vec![WmCommand::RequestFocus { window: id(7) }]);
+    assert_eq!(
+        sink.commands,
+        vec![WmCommand::RequestFocus { window: id(7) }]
+    );
 }
 
 #[test]
@@ -49,7 +57,8 @@ fn destroyed_window_during_pending_operation_does_not_reappear() {
     .unwrap();
 
     let pending = wm.request_resize(id(9), 800, 600).unwrap();
-    wm.apply_event(WmEvent::WindowDestroyed { id: id(9) }).unwrap();
+    wm.apply_event(WmEvent::WindowDestroyed { id: id(9) })
+        .unwrap();
     assert!(wm.window(id(9)).is_none());
 
     let outcome = wm
@@ -59,6 +68,13 @@ fn destroyed_window_during_pending_operation_does_not_reappear() {
         })
         .unwrap();
     assert_eq!(format!("{outcome:?}"), "IgnoredStale");
-    assert_eq!(pending, WmCommand::RequestResize { window: id(9), width: 800, height: 600 });
+    assert_eq!(
+        pending,
+        WmCommand::RequestResize {
+            window: id(9),
+            width: 800,
+            height: 600
+        }
+    );
     assert!(wm.window(id(9)).is_none());
 }
