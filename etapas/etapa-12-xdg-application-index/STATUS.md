@@ -4,13 +4,16 @@
 - **ETAPA:** 12 — XDG Application Index
 - **MODULO:** `nexxus-xdg-application-index`
 - **VERSAO:** 0.1.0
-- **STATUS:** VALIDADO
+- **STATUS:** VALIDADO_E_PUBLICADO
 - **REPOSITORIO_GITHUB:** `https://github.com/mintonogueira/nexxus-de`
+- **BRANCH_CANONICA:** `main`
 - **BRANCH_DE_VALIDACAO:** `etapa-12-xdg-application-index-impl`
 - **PR:** `#14`
 - **COMMIT_FONTE_VALIDADO:** `bf11fb468a2f6de8d1666f35780e4de95c235d16`
 - **COMMIT_ENTREGA:** `322fd5917b0a2d920c41125fb0d12fafd21b903b`
-- **GITHUB_ACTIONS_RUN:** `32007086533`
+- **COMMIT_MERGE_MAIN:** `d022a70a0fffc9d83a903d282c700404ce221998`
+- **GITHUB_ACTIONS_RUN_VALIDACAO:** `32007086533`
+- **GITHUB_ACTIONS_RUN_MAIN:** `32007387601`
 
 ## Implementado e validado
 
@@ -27,7 +30,7 @@
 
 ## Evidência de validação
 
-O workflow `32007086533` concluiu com sucesso os jobs `debian-trixie`, `archlinux-current` e `delivery`. Os wrappers executaram build release, `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, testes e `cargo doc` nos cenários de validação.
+O workflow de validação `32007086533` concluiu com sucesso `debian-trixie`, `archlinux-current` e `delivery`. Após o merge da PR #14, o workflow `32007387601` repetiu com sucesso os cenários Debian e Arch diretamente sobre a branch `main`; o job `delivery` foi corretamente ignorado em `main` porque o snapshot já havia sido produzido e versionado na validação da branch.
 
 Snapshot:
 
@@ -41,6 +44,6 @@ SHA-256:
 
 `NEXXUS_INSTALLABLE=0`: esta etapa entrega biblioteca/serviço integrável e não possui payload executável independente. Portanto pacote nativo e instalação final são `N/A`; build, testes e staging foram executados nos dois cenários exigidos.
 
-## Pendência externa à validação técnica
+## Encerramento
 
-Publicação final na branch `main` ocorre pelo merge da PR #14. Nenhuma etapa posterior é iniciada neste contexto.
+A Etapa 12 está validada e publicada na branch `main`. Nenhuma etapa posterior foi iniciada neste contexto.
