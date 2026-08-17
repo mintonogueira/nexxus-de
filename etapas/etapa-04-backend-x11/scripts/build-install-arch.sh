@@ -41,8 +41,17 @@ set -- "$PKG_DIR"/nexxus-backend-x11-*.pkg.tar.*
 [ -f "$1" ] || die 'makepkg não produziu pacote nexxus-backend-x11'
 cp "$1" "$DIST_DIR/"; final_package="$DIST_DIR/$(basename "$1")"
 pacman -Qp "$final_package" >/dev/null || die 'pacman rejeitou metadados'
-pacman -Qlp "$final_package" | grep -q 'usr/bin/nexxus-x11-backend-check$' || die 'binário ausente do pacote Arch'
+contents_file="$BUILD_DIR/package-contents.txt"
+pacman -Qlp "$final_package" > "$contents_file"
+grep -q 'usr/bin/nexxus-x11-backend-check$' "$contents_file" || die 'binário ausente do pacote Arch'
 log_msg "[install] instalando exatamente $final_package"
 run_privileged pacman -U --noconfirm "$final_package"
 command -v nexxus-x11-backend-check >/dev/null 2>&1 || die 'binário não encontrado após instalação'
+
+# O teste pós-instalação executa o binário que veio do pacote, sob um X server
+# isolado, provando que o artefato instalado consegue assumir o papel de WM.
+start_test_xserver
+if run_logged nexxus-x11-backend-check --check; then smoke_status=0; else smoke_status=$?; fi
+stop_test_xserver
+[ "$smoke_status" -eq 0 ] || die 'smoke test do pacote Arch instalado falhou'
 log_msg "[status] pacote=$(basename "$final_package") sha256=$(sha256_file "$final_package")"
