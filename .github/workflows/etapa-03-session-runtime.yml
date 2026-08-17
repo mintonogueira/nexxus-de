@@ -116,7 +116,7 @@ jobs:
           cp .validated/etapa-03-debian/Cargo.lock etapas/etapa-03-session-runtime/Cargo.lock
           mkdir -p etapas/etapa-03-session-runtime/dist/debian etapas/etapa-03-session-runtime/dist/arch
           cp .validated/etapa-03-debian/dist/debian/*.deb etapas/etapa-03-session-runtime/dist/debian/
-          cp .validated/etapa-03-arch/dist/arch/*.pkg.tar.* etapas/etapa-03-session-runtime/dist/arch/
+          cp .validated/etapa-03-arch/*.pkg.tar.* etapas/etapa-03-session-runtime/dist/arch/
       - name: Gerar e validar snapshot
         shell: sh
         run: |
