@@ -78,7 +78,7 @@ fn software_renderer_draws_svg_into_backend_neutral_frame() {
     list.push(DrawCommand::Clear(Color::rgb(0, 0, 0)));
     list.push(DrawCommand::Svg {
         rect: LogicalRect::new(0.0, 0.0, 10.0, 10.0),
-        bytes: br#"<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="#00ff00"/></svg>"#.to_vec(),
+        bytes: br##"<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10" fill="#00ff00"/></svg>"##.to_vec(),
     });
     let mut renderer = SoftwareRenderer::new();
     let frame = renderer.render(&list, LogicalSize::new(10.0, 10.0), ScaleFactor::default()).expect("SVG renders");
