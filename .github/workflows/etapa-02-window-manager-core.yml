@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   debian-trixie:
@@ -42,7 +42,23 @@ jobs:
             done
             exit "$status"
           fi
+      - name: Publicar normalização rustfmt e Cargo.lock na branch da etapa
+        if: ${{ always() && github.ref_name == 'etapa-02-window-manager-core' }}
+        shell: sh
+        run: |
+          set -eu
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add etapas/etapa-02-window-manager-core/crates etapas/etapa-02-window-manager-core/Cargo.lock 2>/dev/null || true
+          if git diff --cached --quiet; then
+            printf '%s\n' 'fontes/lock já normalizados'
+            exit 0
+          fi
+          git commit -m 'style(etapa-02): aplica rustfmt e versiona Cargo.lock [skip ci-normalize]'
+          git push origin HEAD:etapa-02-window-manager-core
       - name: Exportar Cargo.lock resolvido
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: etapa-02-cargo-lock-debian
