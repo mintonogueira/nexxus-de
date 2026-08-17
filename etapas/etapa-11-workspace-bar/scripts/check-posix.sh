@@ -1,7 +1,7 @@
 #!/bin/sh
 # Auditoria leve contra bashisms proibidos pelos Aditivos 05/07.
-# O próprio auditor não entra na lista para não interpretar seus padrões grep
-# literais como construções Shell reais.
+# O próprio auditor e o script de validação não entram na busca textual porque
+# podem conter os nomes das construções proibidas em comentários/comandos grep.
 set -eu
 
 SCRIPT_DIR=$(dirname "$0"); case "$SCRIPT_DIR" in -*) SCRIPT_DIR="./$SCRIPT_DIR" ;; esac
@@ -11,7 +11,6 @@ status=0
 for file in \
     "$ROOT_DIR/scripts/build-install-arch.sh" \
     "$ROOT_DIR/scripts/build-install-debian.sh" \
-    "$ROOT_DIR/scripts/check.sh" \
     "$ROOT_DIR/scripts/create-delivery.sh" \
     "$ROOT_DIR/scripts/lib/common.sh"
 do
