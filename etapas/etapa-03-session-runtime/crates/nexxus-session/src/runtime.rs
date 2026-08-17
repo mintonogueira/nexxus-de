@@ -7,12 +7,12 @@
 use crate::{SessionControlRequest, SessionControlResponse, SessionStatus};
 use nexxus_backend_api::BackendKind;
 use nexxus_core::{
-    ApiVersion, CapabilityId, CapabilitySelections, Dependency, EventBus, IsolationMode,
-    LifecycleError, LifecycleManager, ModuleContext, ModuleDescriptor, ModuleFailure, ModuleId,
-    ModuleRegistry, NexxusModule, CORE_API_VERSION,
+    ApiVersion, CORE_API_VERSION, CapabilityId, CapabilitySelections, Dependency, EventBus,
+    IsolationMode, LifecycleError, LifecycleManager, ModuleContext, ModuleDescriptor,
+    ModuleFailure, ModuleId, ModuleRegistry, NexxusModule,
 };
 use nexxus_protocol::{
-    Message, MessageKind, ProtocolError, UnixConnection, UnixEndpoint, PROTOCOL_VERSION,
+    Message, MessageKind, PROTOCOL_VERSION, ProtocolError, UnixConnection, UnixEndpoint,
 };
 use nexxus_wm::WindowManager;
 use std::collections::BTreeMap;
@@ -78,8 +78,8 @@ impl SessionRuntime {
         runtime_dir: &Path,
         backend_module: Option<BackendModule>,
     ) -> Result<Self, SessionRuntimeError> {
-        let backend_module = backend_module
-            .ok_or(SessionRuntimeError::BackendUnavailable { backend })?;
+        let backend_module =
+            backend_module.ok_or(SessionRuntimeError::BackendUnavailable { backend })?;
         validate_backend_module(backend, &backend_module)?;
 
         let backend_descriptor = backend_module.module.descriptor().clone();
@@ -419,7 +419,11 @@ mod tests {
         path
     }
 
-    fn backend(kind: BackendKind, calls: Arc<Mutex<Vec<&'static str>>>, fail_start: bool) -> BackendModule {
+    fn backend(
+        kind: BackendKind,
+        calls: Arc<Mutex<Vec<&'static str>>>,
+        fail_start: bool,
+    ) -> BackendModule {
         let id = expected_backend_module_id(kind);
         BackendModule {
             kind,
@@ -464,7 +468,10 @@ mod tests {
         )
         .unwrap();
         assert_eq!(
-            runtime.environment().get("XDG_SESSION_TYPE").map(String::as_str),
+            runtime
+                .environment()
+                .get("XDG_SESSION_TYPE")
+                .map(String::as_str),
             Some("x11")
         );
         runtime.start().unwrap();
@@ -494,10 +501,12 @@ mod tests {
         let status = query_status(&socket).unwrap();
         assert_eq!(status.backend, BackendKind::X11);
         assert_eq!(status.modules.len(), 2);
-        assert!(status
-            .modules
-            .iter()
-            .all(|(_, state)| *state == Some(nexxus_core::ModuleState::Running)));
+        assert!(
+            status
+                .modules
+                .iter()
+                .all(|(_, state)| *state == Some(nexxus_core::ModuleState::Running))
+        );
 
         request_shutdown(&socket, "test-complete").unwrap();
         handle.join().unwrap().unwrap();
