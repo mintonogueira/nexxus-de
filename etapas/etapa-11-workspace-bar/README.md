@@ -1,12 +1,12 @@
 # NEXXUS — ETAPA 11 — Workspace Bar
 
-**Status:** EM_ANDAMENTO  
+**Status:** VALIDADO  
 **Versão:** 0.1.0  
 **Módulo:** `nexxus-workspace-bar`
 
 Implementação da barra superior suspensa de workspaces definida pela documentação normativa do Nexxus.
 
-## Responsabilidades
+## Responsabilidades entregues
 
 - espelhar a ordem, nomes e workspace ativo do `nexxus-workspaces`;
 - reagir a `Created`, `Removed`, `Renamed` e `Activated` sem duplicar a autoridade do Workspace Manager;
@@ -17,7 +17,7 @@ Implementação da barra superior suspensa de workspaces definida pela documenta
 - fornecer adapter X11 inicial com RandR e superfície `override_redirect`;
 - manter superfícies opacas, sem animação, blur, sombra ou transparência decorativa.
 
-## Fora do escopo
+## Fora do escopo preservado
 
 Settings de workspaces, painel inferior, backend Wayland definitivo e alteração do Workspace Manager.
 
@@ -28,4 +28,4 @@ sh ./scripts/check-posix.sh
 sh ./scripts/check.sh
 ```
 
-Os wrappers Arch Linux/Debian pertencem à própria etapa e executam autoprovisionamento, build, testes e staging conforme os Aditivos 03 e 05.
+A validação final foi executada em CI real nos cenários Arch Linux e Debian, incluindo teste X11 sob Xvfb e geração do snapshot de entrega. Os wrappers Arch Linux/Debian pertencem à própria etapa e executam autoprovisionamento, build, testes e staging conforme os Aditivos 03 e 05.
