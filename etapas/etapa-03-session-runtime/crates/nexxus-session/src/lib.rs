@@ -18,9 +18,19 @@ pub use runtime::{
 };
 
 use nexxus_backend_api::BackendKind;
-use nexxus_core::ModuleState;
+use nexxus_core::{ModuleState, RegistryError};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+
+/// Converts registry validation failures into the lifecycle error channel used
+/// by the Session Runtime. The Core already defines RegistryError as a
+/// LifecycleError source, so this preserves the foundation contract instead of
+/// creating a parallel error model in Etapa 03.
+impl From<RegistryError> for SessionRuntimeError {
+    fn from(error: RegistryError) -> Self {
+        Self::Lifecycle(error.into())
+    }
+}
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "command", rename_all = "kebab-case")]
