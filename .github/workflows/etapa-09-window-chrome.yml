@@ -40,7 +40,12 @@ jobs:
           status=$?
           set -e
           cat /tmp/nexxus-window-chrome-debian.log
-          if [ "$status" -ne 0 ]; then tail -n 260 /tmp/nexxus-window-chrome-debian.log; exit "$status"; fi
+          if [ "$status" -ne 0 ]; then
+            tail -n 260 /tmp/nexxus-window-chrome-debian.log
+            details=$(tail -n 80 /tmp/nexxus-window-chrome-debian.log | sed 's/%/%25/g' | awk 'NR == 1 { printf "%s", $0; next } { printf "%%0A%s", $0 }')
+            printf '::error title=Etapa 09 Debian::%s\n' "$details"
+            exit "$status"
+          fi
       - name: Exportar lockfile validado no Debian
         uses: actions/upload-artifact@v4
         with:
@@ -70,7 +75,12 @@ jobs:
           status=$?
           set -e
           cat /tmp/nexxus-window-chrome-arch.log
-          if [ "$status" -ne 0 ]; then tail -n 260 /tmp/nexxus-window-chrome-arch.log; exit "$status"; fi
+          if [ "$status" -ne 0 ]; then
+            tail -n 260 /tmp/nexxus-window-chrome-arch.log
+            details=$(tail -n 80 /tmp/nexxus-window-chrome-arch.log | sed 's/%/%25/g' | awk 'NR == 1 { printf "%s", $0; next } { printf "%%0A%s", $0 }')
+            printf '::error title=Etapa 09 Arch::%s\n' "$details"
+            exit "$status"
+          fi
 
   delivery:
     if: github.ref == 'refs/heads/etapa-09-window-chrome-impl'
