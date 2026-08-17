@@ -4,7 +4,12 @@ use crate::{IconContext, IconSpec, WallpaperSpec};
 
 macro_rules! icon {
     ($name:literal, $context:ident, $dir:literal) => {
-        IconSpec { name: $name, context: IconContext::$context, relative_path: concat!($dir, "/", $name, ".svg"), tintable: true }
+        IconSpec {
+            name: $name,
+            context: IconContext::$context,
+            relative_path: concat!($dir, "/", $name, ".svg"),
+            tintable: true,
+        }
     };
 }
 
@@ -96,14 +101,74 @@ pub const ICONS: &[IconSpec] = &[
 
 /// Initial wallpaper set distributed by the Nexxus asset package.
 pub const WALLPAPERS: &[WallpaperSpec] = &[
-    WallpaperSpec { name: "01-cyber-grid", relative_path: "01-cyber-grid.svg", category: "cyberpunk", width: 1920, height: 1080 },
-    WallpaperSpec { name: "02-neon-horizon", relative_path: "02-neon-horizon.svg", category: "cyberpunk", width: 1920, height: 1080 },
-    WallpaperSpec { name: "03-data-rain", relative_path: "03-data-rain.svg", category: "cyberpunk", width: 1920, height: 1080 },
-    WallpaperSpec { name: "04-steam-foundry", relative_path: "04-steam-foundry.svg", category: "steampunk", width: 1920, height: 1080 },
-    WallpaperSpec { name: "05-brass-circuit", relative_path: "05-brass-circuit.svg", category: "steampunk", width: 1920, height: 1080 },
-    WallpaperSpec { name: "06-hybrid-forge", relative_path: "06-hybrid-forge.svg", category: "hybrid", width: 1920, height: 1080 },
-    WallpaperSpec { name: "07-terminal-city", relative_path: "07-terminal-city.svg", category: "cyberpunk", width: 1920, height: 1080 },
-    WallpaperSpec { name: "08-signature-lines", relative_path: "08-signature-lines.svg", category: "signature", width: 1920, height: 1080 },
-    WallpaperSpec { name: "09-minimal-hex", relative_path: "09-minimal-hex.svg", category: "signature", width: 1920, height: 1080 },
-    WallpaperSpec { name: "10-dark-mountain", relative_path: "10-dark-mountain.svg", category: "minimal", width: 1920, height: 1080 },
+    WallpaperSpec {
+        name: "01-cyber-grid",
+        relative_path: "01-cyber-grid.svg",
+        category: "cyberpunk",
+        width: 1920,
+        height: 1080,
+    },
+    WallpaperSpec {
+        name: "02-neon-horizon",
+        relative_path: "02-neon-horizon.svg",
+        category: "cyberpunk",
+        width: 1920,
+        height: 1080,
+    },
+    WallpaperSpec {
+        name: "03-data-rain",
+        relative_path: "03-data-rain.svg",
+        category: "cyberpunk",
+        width: 1920,
+        height: 1080,
+    },
+    WallpaperSpec {
+        name: "04-steam-foundry",
+        relative_path: "04-steam-foundry.svg",
+        category: "steampunk",
+        width: 1920,
+        height: 1080,
+    },
+    WallpaperSpec {
+        name: "05-brass-circuit",
+        relative_path: "05-brass-circuit.svg",
+        category: "steampunk",
+        width: 1920,
+        height: 1080,
+    },
+    WallpaperSpec {
+        name: "06-hybrid-forge",
+        relative_path: "06-hybrid-forge.svg",
+        category: "hybrid",
+        width: 1920,
+        height: 1080,
+    },
+    WallpaperSpec {
+        name: "07-terminal-city",
+        relative_path: "07-terminal-city.svg",
+        category: "cyberpunk",
+        width: 1920,
+        height: 1080,
+    },
+    WallpaperSpec {
+        name: "08-signature-lines",
+        relative_path: "08-signature-lines.svg",
+        category: "signature",
+        width: 1920,
+        height: 1080,
+    },
+    WallpaperSpec {
+        name: "09-minimal-hex",
+        relative_path: "09-minimal-hex.svg",
+        category: "signature",
+        width: 1920,
+        height: 1080,
+    },
+    WallpaperSpec {
+        name: "10-dark-mountain",
+        relative_path: "10-dark-mountain.svg",
+        category: "minimal",
+        width: 1920,
+        height: 1080,
+    },
 ];
