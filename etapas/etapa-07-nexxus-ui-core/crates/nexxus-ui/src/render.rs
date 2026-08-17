@@ -320,11 +320,12 @@ impl TextMeasurer for SoftwareRenderer {
 impl Renderer for SoftwareRenderer {
     fn render(&mut self, list: &DisplayList, logical_size: LogicalSize, scale: ScaleFactor) -> Result<Frame, RenderError> {
         let mut frame = Frame::new(scale.physical_size(logical_size))?;
+        let frame_bounds = Self::frame_bounds(&frame);
         let mut clips = Vec::<PhysicalRect>::new();
         for command in list.commands() {
             let clip = Self::current_clip(&frame, &clips).unwrap_or_default();
             match command {
-                DrawCommand::Clear(color) => Self::fill_rect(&mut frame, Self::frame_bounds(&frame), *color, Self::frame_bounds(&frame)),
+                DrawCommand::Clear(color) => Self::fill_rect(&mut frame, frame_bounds, *color, frame_bounds),
                 DrawCommand::FillRect { rect, color } => Self::fill_rect(&mut frame, scale.physical_rect(*rect), *color, clip),
                 DrawCommand::StrokeRect { rect, color, width } => {
                     let physical_width = (*width * scale.get()).round().max(1.0) as u32;
