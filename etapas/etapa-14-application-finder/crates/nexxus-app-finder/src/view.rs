@@ -37,6 +37,8 @@ impl FinderView {
         let _ = tree.add_child(root, results);
         let _ = tree.set_root(root);
 
+        // UiTree focuses the first focusable widget on Tab. Keeping the query
+        // focused allows typing immediately when the Finder is shown.
         let _ = tree.handle_event(&UiEvent::KeyDown {
             key: Key::Tab,
             modifiers: Modifiers::default(),
@@ -58,25 +60,26 @@ impl FinderView {
     }
 
     pub fn set_query(&mut self, value: &str) {
-        if let Some(node) = self.tree.node_mut(self.query)
-            && let WidgetKind::TextField { text, cursor, .. } = &mut node.kind
-        {
-            *text = value.to_owned();
-            *cursor = text.len();
+        if let Some(node) = self.tree.node_mut(self.query) {
+            if let WidgetKind::TextField { text, cursor, .. } = &mut node.kind {
+                *text = value.to_owned();
+                *cursor = text.len();
+            }
         }
     }
 
     pub fn set_results(&mut self, matches: &[FinderMatch], selected: Option<usize>) {
-        if let Some(node) = self.tree.node_mut(self.results)
-            && let WidgetKind::List {
+        if let Some(node) = self.tree.node_mut(self.results) {
+            if let WidgetKind::List {
                 items,
                 selected: current,
                 offset,
             } = &mut node.kind
-        {
-            *items = matches.iter().map(|item| item.name.clone()).collect();
-            *current = selected.filter(|index| *index < items.len());
-            *offset = 0.0;
+            {
+                *items = matches.iter().map(|item| item.name.clone()).collect();
+                *current = selected.filter(|index| *index < items.len());
+                *offset = 0.0;
+            }
         }
     }
 
