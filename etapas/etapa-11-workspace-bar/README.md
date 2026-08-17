@@ -1,10 +1,10 @@
 # NEXXUS — ETAPA 11 — Workspace Bar
 
-**Status:** VALIDADO  
+**Status:** VALIDADO / ENTREGUE / PUBLICADO  
 **Versão:** 0.1.0  
 **Módulo:** `nexxus-workspace-bar`
 
-Implementação da barra superior suspensa de workspaces definida pela documentação normativa do Nexxus.
+Implementação validada da barra superior suspensa de workspaces definida pela documentação normativa do Nexxus.
 
 ## Responsabilidades entregues
 
@@ -23,9 +23,11 @@ Settings de workspaces, painel inferior, backend Wayland definitivo e alteraçã
 
 ## Validação
 
+GitHub Actions run `32003637152`: Arch Linux, Debian Trixie e delivery concluídos com sucesso.
+
 ```sh
 sh ./scripts/check-posix.sh
 sh ./scripts/check.sh
 ```
 
-A validação final foi executada em CI real nos cenários Arch Linux e Debian, incluindo teste X11 sob Xvfb e geração do snapshot de entrega. Os wrappers Arch Linux/Debian pertencem à própria etapa e executam autoprovisionamento, build, testes e staging conforme os Aditivos 03 e 05.
+Consulte `HANDOFF.md` para arquitetura, contratos, evidências, artefatos e continuidade.

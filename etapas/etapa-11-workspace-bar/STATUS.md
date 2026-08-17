@@ -4,7 +4,7 @@ PROJETO: Nexxus
 ETAPA: 11 — Workspace Bar  
 MÓDULO: nexxus-workspace-bar  
 VERSÃO: 0.1.0  
-STATUS: VALIDADO
+STATUS: VALIDADO / ENTREGUE / PUBLICADO
 
 ## Implementado e validado
 
@@ -20,8 +20,16 @@ STATUS: VALIDADO
 
 ## Validação final
 
-GitHub Actions run `32003134221`: Arch Linux, Debian Trixie e job de delivery concluídos com sucesso. As falhas anteriores de auditoria POSIX/formatação foram corrigidas antes desta validação final.
+GitHub Actions run `32003637152`: Arch Linux, Debian Trixie e delivery concluídos com sucesso.
+
+Commit validado publicado na `main`: `d866d91b723bc6747e08a7451be3ae6ef3799b94`.
+
+## Entrega
+
+- `entrega/Nexxus_Etapa11_Workspace_Bar_0.1.0.tar.gz`
+- SHA-256: `8312e2674000130951b3c91c3d93660f23634f37532d15008371090823fb1ad6`
+- handoff: `HANDOFF.md`
 
 ## Pendências da Etapa 11
 
-Nenhuma pendência funcional conhecida dentro do escopo aprovado. A integração de instanciação/fan-out no runtime da sessão permanece responsabilidade do módulo coordenador, e Settings de Workspaces/Wayland final permanecem nas respectivas etapas futuras.
+Nenhuma pendência funcional ou de publicação dentro do escopo aprovado.
