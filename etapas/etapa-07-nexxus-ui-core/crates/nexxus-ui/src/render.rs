@@ -232,18 +232,22 @@ impl SoftwareRenderer {
         let line_height = (style.line_height * scale.get()).max(size);
         let metrics = Metrics::new(size, line_height);
         let mut buffer = Buffer::new(&mut self.font_system, metrics);
-        let mut borrowed = buffer.borrow_with(&mut self.font_system);
-        borrowed.set_size(Some(rect.width as f32), Some(rect.height as f32));
-        let weight = if style.bold { Weight::BOLD } else { Weight::NORMAL };
-        let attrs = Attrs::new().family(Family::Name(style.family.as_str())).weight(weight);
-        borrowed.set_text(text, &attrs, Shaping::Advanced, None);
-        borrowed.shape_until_scroll(true);
         let color = CosmicColor::rgba(style.color.r, style.color.g, style.color.b, style.color.a);
         let mut pixels = Vec::new();
-        borrowed.draw(&mut self.swash_cache, color, |x, y, w, h, pixel| {
-            pixels.push((x, y, w, h, pixel.as_rgba_tuple()));
-        });
-        drop(borrowed);
+        {
+            // Keep the temporary cosmic-text font-system borrow scoped to the
+            // shaping/draw phase. Pixel compositing happens after the borrow
+            // naturally ends, without an explicit drop of a non-Drop guard.
+            let mut borrowed = buffer.borrow_with(&mut self.font_system);
+            borrowed.set_size(Some(rect.width as f32), Some(rect.height as f32));
+            let weight = if style.bold { Weight::BOLD } else { Weight::NORMAL };
+            let attrs = Attrs::new().family(Family::Name(style.family.as_str())).weight(weight);
+            borrowed.set_text(text, &attrs, Shaping::Advanced, None);
+            borrowed.shape_until_scroll(true);
+            borrowed.draw(&mut self.swash_cache, color, |x, y, w, h, pixel| {
+                pixels.push((x, y, w, h, pixel.as_rgba_tuple()));
+            });
+        }
         for (x, y, width, height, rgba) in pixels {
             let color = Color::rgba(rgba.0, rgba.1, rgba.2, rgba.3);
             Self::fill_rect(frame, PhysicalRect::new(rect.x + x, rect.y + y, width, height), color, clip);
