@@ -2,7 +2,7 @@
 
 Data-base: 2026-08-16
 
-Estado atual: **EM IMPLEMENTAÇÃO / VALIDAÇÃO CI**.
+Estado atual: **EM VALIDAÇÃO FINAL NA BRANCH DA ETAPA**.
 
 ## Implementado
 
@@ -15,13 +15,18 @@ Estado atual: **EM IMPLEMENTAÇÃO / VALIDAÇÃO CI**.
 - contratos de eventos/comandos para futuros backends;
 - testes unitários e de integração;
 - wrappers Shell POSIX separados para Arch Linux e Debian;
-- workflow GitHub Actions da Etapa 02.
+- workflow GitHub Actions da Etapa 02;
+- fontes normalizadas por `rustfmt` e `Cargo.lock` versionado pela CI.
+
+## Evidência intermediária
+
+- GitHub Actions run `31980740552`: sucesso em Arch Linux, Debian Trixie e geração de snapshot sobre a revisão anterior à normalização publicada.
+- Commit de normalização/lock: `969c2f858f9b82353e861af9834db083df07ffa8`.
 
 ## Pendente para fechamento
 
-- CI Arch Linux e Debian completamente verde;
-- `Cargo.lock` validado e versionado;
-- snapshot `.tar.gz` e SHA-256;
+- validar novamente a revisão já normalizada/versionada;
+- registrar snapshot final e SHA-256;
 - handoff final;
 - integração/publicação na `main`.
 
