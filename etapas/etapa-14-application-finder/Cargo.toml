@@ -1,0 +1,17 @@
+[workspace]
+members = ["crates/nexxus-app-finder"]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "GPL-3.0-only"
+
+[workspace.dependencies]
+nexxus-shortcuts = { path = "../etapa-10-shortcuts-core/crates/nexxus-shortcuts" }
+nexxus-ui = { path = "../etapa-07-nexxus-ui-core/crates/nexxus-ui" }
+nexxus-xdg-application-index = { path = "../etapa-12-xdg-application-index/crates/nexxus-xdg-application-index" }
+thiserror = "2"
+# Mantido na linha validada pela Etapa 13 para preservar o MSRV Rust 1.85.
+zbus = { version = "=5.13.2", features = ["blocking-api"] }

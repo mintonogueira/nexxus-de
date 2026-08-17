@@ -1,0 +1,130 @@
+# CI real da Etapa 14 nos cenários Arch Linux e Debian.
+name: Etapa 14 - Application Finder
+
+on:
+  push:
+    branches: [main, etapa-14-application-finder-impl]
+    paths:
+      - 'etapas/etapa-14-application-finder/**'
+      - '.github/workflows/etapa-14-application-finder.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'etapas/etapa-14-application-finder/**'
+      - '.github/workflows/etapa-14-application-finder.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  debian-trixie:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends sudo git ca-certificates passwd
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/apt-get' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v5
+      - name: Executar wrapper Debian como usuário normal
+        shell: sh
+        run: |
+          stage="$GITHUB_WORKSPACE/etapas/etapa-14-application-finder"
+          chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$stage' && sh ./scripts/check-posix.sh && sh ./scripts/build-install-debian.sh" > /tmp/nexxus-app-finder-debian.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-app-finder-debian.log
+          if [ "$status" -ne 0 ]; then
+            details=$(tail -n 140 /tmp/nexxus-app-finder-debian.log | sed 's/%/%25/g' | awk 'NR == 1 { printf "%s", $0; next } { printf "%%0A%s", $0 }')
+            printf '::error title=Etapa 14 Debian::%s\n' "$details"
+            exit "$status"
+          fi
+      - name: Exportar estado Rust validado no Debian
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-14-debian
+          path: |
+            etapas/etapa-14-application-finder/Cargo.lock
+            etapas/etapa-14-application-finder/crates/**/*.rs
+          if-no-files-found: error
+
+  archlinux-current:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --needed --noconfirm sudo git ca-certificates shadow
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v5
+      - name: Executar wrapper Arch como usuário normal
+        shell: sh
+        run: |
+          stage="$GITHUB_WORKSPACE/etapas/etapa-14-application-finder"
+          chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$stage' && sh ./scripts/check-posix.sh && sh ./scripts/build-install-arch.sh" > /tmp/nexxus-app-finder-arch.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-app-finder-arch.log
+          if [ "$status" -ne 0 ]; then
+            details=$(tail -n 140 /tmp/nexxus-app-finder-arch.log | sed 's/%/%25/g' | awk 'NR == 1 { printf "%s", $0; next } { printf "%%0A%s", $0 }')
+            printf '::error title=Etapa 14 Arch::%s\n' "$details"
+            exit "$status"
+          fi
+
+  delivery:
+    if: github.ref == 'refs/heads/etapa-14-application-finder-impl'
+    needs: [debian-trixie, archlinux-current]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: etapa-14-application-finder-impl
+      - name: Baixar estado Rust validado
+        uses: actions/download-artifact@v5
+        with:
+          name: etapa-14-debian
+          path: /tmp/etapa-14-debian
+      - name: Consolidar lockfile, formato e snapshot
+        shell: sh
+        run: |
+          stage="$GITHUB_WORKSPACE/etapas/etapa-14-application-finder"
+          lock_file=$(find /tmp/etapa-14-debian -type f -name 'Cargo.lock' | head -n 1)
+          [ -f "$lock_file" ] || { echo 'Cargo.lock validado não encontrado' >&2; exit 1; }
+          cp "$lock_file" "$stage/Cargo.lock"
+          cd "$stage"
+          cargo fmt -p nexxus-app-finder
+          sh ./scripts/check-posix.sh
+          sh ./scripts/create-delivery.sh
+      - name: Exportar snapshot da entrega
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-14-delivery
+          path: |
+            etapas/etapa-14-application-finder/entrega/*.tar.gz
+            etapas/etapa-14-application-finder/entrega/*.sha256
+          if-no-files-found: error
+      - name: Versionar estado validado
+        shell: sh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add etapas/etapa-14-application-finder
+          if git diff --cached --quiet; then
+            echo 'Artefatos já correspondem ao estado validado.'
+            exit 0
+          fi
+          git commit -m 'build(etapa-14): publica estado e snapshot validados [skip ci]'
+          git push origin HEAD:etapa-14-application-finder-impl
