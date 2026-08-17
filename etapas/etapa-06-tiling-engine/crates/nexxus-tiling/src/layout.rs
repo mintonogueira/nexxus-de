@@ -238,7 +238,13 @@ pub(crate) fn fit_slot(
 }
 
 fn scaled_edge(total: u32, normalized: u16) -> u64 {
-    u64::from(total) * u64::from(normalized) / u64::from(NORMALIZED_SCALE)
+    let scale = u64::from(NORMALIZED_SCALE);
+    let product = u64::from(total) * u64::from(normalized);
+
+    // Round cumulative normalized boundaries to the nearest physical pixel.
+    // Adjacent slots share the exact same rounded boundary, so this keeps the
+    // layout gap-free while minimizing one-pixel bias in fractional divisions.
+    (product + scale / 2) / scale
 }
 
 fn rectangles_overlap(first: NormalizedRect, second: NormalizedRect) -> bool {
