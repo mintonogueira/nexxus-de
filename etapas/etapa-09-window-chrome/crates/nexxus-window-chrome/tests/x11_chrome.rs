@@ -4,7 +4,10 @@ use std::time::Duration;
 
 use nexxus_backend_x11::X11Service;
 use nexxus_ui::{ScaleFactor, Theme};
-use nexxus_window_chrome::{AssetSource, NoopChromeHooks, X11ChromeAdapter};
+use nexxus_window_chrome::{
+    AssetSource, NoopChromeHooks, X11ChromeAdapter, maximize_restore,
+};
+use nexxus_wm::{PresentationState, WindowId};
 use x11rb::COPY_DEPTH_FROM_PARENT;
 use x11rb::connection::Connection;
 use x11rb::protocol::xproto::{
@@ -72,8 +75,20 @@ fn stage08_icons() -> std::path::PathBuf {
         .join("../../../etapa-08-visual-assets/assets/icons")
 }
 
+fn window_snapshot(
+    controller: &nexxus_backend_x11::X11Controller,
+    id: WindowId,
+) -> nexxus_wm::Window {
+    controller
+        .windows()
+        .unwrap()
+        .into_iter()
+        .find(|window| window.id == id)
+        .expect("test window must remain registered")
+}
+
 #[test]
-fn x11_adapter_decorates_ssd_and_skips_gtk_csd() {
+fn x11_adapter_decorates_ssd_skips_csd_and_preserves_restore_geometry() {
     let mut backend = X11Service::start(None).unwrap();
     let controller = backend.controller();
     let (clients, client_screen) = x11rb::connect(None).unwrap();
@@ -96,6 +111,18 @@ fn x11_adapter_decorates_ssd_and_skips_gtk_csd() {
     let decorated: BTreeSet<u64> = chrome.decorated_windows().map(|id| id.get()).collect();
     assert!(decorated.contains(&u64::from(ssd)));
     assert!(!decorated.contains(&u64::from(csd)));
+
+    let ssd_id = WindowId::new(u64::from(ssd)).unwrap();
+    let initial = window_snapshot(&controller, ssd_id).geometry;
+    maximize_restore(&controller, ssd_id).unwrap();
+    assert_eq!(
+        window_snapshot(&controller, ssd_id).presentation,
+        PresentationState::Maximized
+    );
+    maximize_restore(&controller, ssd_id).unwrap();
+    let restored = window_snapshot(&controller, ssd_id);
+    assert_eq!(restored.presentation, PresentationState::Normal);
+    assert_eq!(restored.geometry, initial);
 
     let (probe, _) = x11rb::connect(None).unwrap();
     let frame_atom = probe
