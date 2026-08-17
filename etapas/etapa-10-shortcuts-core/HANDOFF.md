@@ -4,9 +4,10 @@
 - **Etapa:** 10 — Shortcuts Core
 - **Módulo:** `nexxus-shortcuts`
 - **Versão:** 0.1.0
-- **Estado técnico:** VALIDADO EM BRANCH
+- **Estado técnico:** VALIDADO E PUBLICADO NA `main`
 - **Branch de construção:** `etapa-10-shortcuts-core-impl`
-- **Validação principal:** GitHub Actions run `32000106232` — Arch Linux, Debian e delivery: SUCCESS
+- **Validação final registrada:** GitHub Actions run `32000339497` — Arch Linux, Debian e delivery: SUCCESS
+- **Integração inicial na `main`:** `cbea8c233557b3643ac4f9405869626afe283574`
 
 ## Entrega funcional
 
@@ -33,7 +34,7 @@ O dispatch segue o contrato `Trigger -> CommandId -> CommandDescriptor -> Comman
 
 - Etapa 01: `nexxus-config`, `ConfigEnvelope` e `TomlConfigStore` para persistência atômica/versionada;
 - Etapa 06: `TILE_FIT_ACTION_ID` e `TilingAction::TileFit` para preservar o contrato oficial de tile-fit;
-- X11: `x11rb` 0.14, já utilizado estruturalmente no projeto, para os grabs iniciais.
+- X11: `x11rb` 0.14 para os grabs iniciais.
 
 Nenhum contrato público de etapa anterior foi reescrito.
 
@@ -66,7 +67,7 @@ A decisão está registrada em `docs/ADR-001-x11-grabs.md`.
 
 ## Testes e validações
 
-GitHub Actions run `32000106232` concluiu com sucesso nos cenários Arch Linux, Debian Trixie e delivery.
+A validação final do handoff é o GitHub Actions run `32000339497`, concluído com sucesso em Arch Linux, Debian Trixie e delivery.
 
 A suíte validou:
 
@@ -113,18 +114,18 @@ O SHA-256 final deve ser lido do arquivo `.sha256` adjacente ao snapshot para ev
 - **REPOSITORIO_GITHUB:** `https://github.com/mintonogueira/nexxus-de`
 - **BRANCH:** `etapa-10-shortcuts-core-impl`
 - **PASTA_DA_ETAPA:** `etapas/etapa-10-shortcuts-core/`
-- **COMMIT_VALIDADO_BRANCH:** `cfc796f2bcab9f82fb6bb30a6095781decef94c8`
-- **COMMIT_MAIN:** pendente de integração final
-- **STATUS_GITHUB:** VALIDADO_EM_BRANCH
-- **ARQUIVOS_PUBLICADOS:** código Rust, testes, ADR, manifests, scripts POSIX, workflow, Cargo.lock e snapshot
+- **COMMIT_VALIDADO_BRANCH:** `cbea8c233557b3643ac4f9405869626afe283574`
+- **COMMIT_MAIN:** `cbea8c233557b3643ac4f9405869626afe283574` — integração inicial do estado validado
+- **STATUS_GITHUB:** PUBLICADO
+- **ARQUIVOS_PUBLICADOS:** código Rust, testes, ADR, manifests, scripts POSIX, workflow, Cargo.lock, handoff e snapshot
 - **ARTEFATOS_PARA_DOWNLOAD:** snapshot `.tar.gz` e arquivo `.sha256`
 - **ARQUIVO_COMPACTADO:** `Nexxus_Etapa10_Shortcuts_Core_0.1.0.tar.gz`
 - **SHA256:** consultar `Nexxus_Etapa10_Shortcuts_Core_0.1.0.tar.gz.sha256`
-- **PENDENCIAS_DE_PUBLICACAO:** integração final na `main`
+- **PENDENCIAS_DE_PUBLICACAO:** nenhuma para a Etapa 10
 
 ## Próxima etapa
 
-**ETAPA 11 — Workspace Bar**. A implementação deverá começar exclusivamente em nova conversa depois do encerramento e publicação desta etapa.
+**ETAPA 11 — Workspace Bar**. A implementação deverá começar exclusivamente em nova conversa após este encerramento.
 
-- **PASTA_PROXIMA_ETAPA:** `etapas/etapa-11-workspace-bar/` — criar estruturalmente após publicação da Etapa 10;
-- **STATUS_PROXIMA_ETAPA:** ainda não iniciada.
+- **PASTA_PROXIMA_ETAPA:** `etapas/etapa-11-workspace-bar/` — deve existir apenas como preparação estrutural;
+- **STATUS_PROXIMA_ETAPA:** PRONTA_PARA_INICIAR, sem implementação nesta conversa.

@@ -4,9 +4,10 @@
 - **Etapa:** 10 — Shortcuts Core
 - **Módulo:** `nexxus-shortcuts`
 - **Versão:** 0.1.0
-- **Status:** VALIDADO EM BRANCH
-- **Branch:** `etapa-10-shortcuts-core-impl`
-- **Validação:** GitHub Actions run `32000106232` — Arch Linux, Debian e delivery: SUCCESS
+- **Status:** VALIDADO E PUBLICADO
+- **Branch de construção:** `etapa-10-shortcuts-core-impl`
+- **Integração inicial na main:** `cbea8c233557b3643ac4f9405869626afe283574`
+- **Validação final:** GitHub Actions run `32000339497` — Arch Linux, Debian e delivery: SUCCESS
 
 ## Implementado e validado
 
@@ -31,4 +32,4 @@
 
 ## Publicação
 
-Pendente apenas a integração final do estado validado na branch canônica `main`.
+Etapa 10 publicada na `main`; nenhuma pendência de publicação permanece para este módulo.

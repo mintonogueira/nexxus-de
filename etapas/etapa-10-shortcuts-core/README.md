@@ -1,8 +1,9 @@
 # NEXXUS — ETAPA 10 — Shortcuts Core
 
 **Versão:** 0.1.0  
-**Status:** VALIDADO EM BRANCH  
-**Data:** 2026-08-17
+**Status:** VALIDADO E PUBLICADO NA `main`  
+**Data:** 2026-08-17  
+**Integração inicial na `main`:** `cbea8c233557b3643ac4f9405869626afe283574`
 
 ## Escopo entregue
 
@@ -35,9 +36,9 @@ O host que compõe a sessão implementa `ShortcutDispatchSink` e encaminha o alv
 
 O adaptador usa `x11rb` 0.14. Ele consulta o mapa real do servidor, descobre os grupos de Alt/Super e cria passive grabs tolerando estados de Caps Lock, Num Lock e Scroll Lock. Erro de grab produz falha explícita e rollback.
 
-## Validação registrada
+## Validação final
 
-GitHub Actions run `32000106232`: Arch Linux, Debian Trixie e delivery concluíram com sucesso. Foram executados release build, rustfmt restrito ao módulo, Clippy `-D warnings`, 15 testes unitários, teste X11 real sob Xvfb, rustdoc, staging e geração do snapshot.
+GitHub Actions run `32000339497`: Arch Linux, Debian Trixie e delivery concluíram com sucesso. Foram executados release build, rustfmt restrito ao módulo, Clippy `-D warnings`, 15 testes unitários, teste X11 real sob Xvfb, rustdoc, staging e geração do snapshot.
 
 ## Build e distribuição
 
