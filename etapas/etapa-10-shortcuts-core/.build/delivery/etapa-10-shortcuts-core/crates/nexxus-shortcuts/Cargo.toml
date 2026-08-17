@@ -1,0 +1,15 @@
+[package]
+name = "nexxus-shortcuts"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+publish.workspace = true
+
+[dependencies]
+nexxus-config.workspace = true
+nexxus-tiling.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+x11rb.workspace = true
