@@ -1,0 +1,15 @@
+[package]
+name = "nexxus-xdg-application-index"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+freedesktop-desktop-entry.workspace = true
+nexxus-assets.workspace = true
+notify.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

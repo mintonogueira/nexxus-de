@@ -1,0 +1,16 @@
+[workspace]
+members = ["crates/nexxus-xdg-application-index"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "GPL-3.0-only"
+
+[workspace.dependencies]
+freedesktop-desktop-entry = { version = "0.8.1", default-features = false }
+nexxus-assets = { path = "../etapa-08-visual-assets/crates/nexxus-assets" }
+notify = "8.2.0"
+thiserror = "2"
+tempfile = "3"
