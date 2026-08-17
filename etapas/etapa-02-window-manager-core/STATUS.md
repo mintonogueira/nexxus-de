@@ -2,7 +2,7 @@
 
 Data-base: 2026-08-16
 
-Estado atual: **EM VALIDAÇÃO FINAL NA BRANCH DA ETAPA**.
+Estado atual: **VALIDADA — ENTREGA 0.1.0 PRONTA PARA `main`**.
 
 ## Implementado
 
@@ -16,18 +16,33 @@ Estado atual: **EM VALIDAÇÃO FINAL NA BRANCH DA ETAPA**.
 - testes unitários e de integração;
 - wrappers Shell POSIX separados para Arch Linux e Debian;
 - workflow GitHub Actions da Etapa 02;
-- fontes normalizadas por `rustfmt` e `Cargo.lock` versionado pela CI.
+- `Cargo.lock` gerado pelo Cargo e versionado;
+- scripts operacionais marcados executáveis;
+- snapshot e SHA-256 versionados.
 
-## Evidência intermediária
+## Evidência final da branch
 
-- GitHub Actions run `31980740552`: sucesso em Arch Linux, Debian Trixie e geração de snapshot sobre a revisão anterior à normalização publicada.
-- Commit de normalização/lock: `969c2f858f9b82353e861af9834db083df07ffa8`.
+- Commit técnico validado: `9cbc6d9fde1f40f0a9b49b525ced8e798f156d95`.
+- GitHub Actions run final: `31980820527` — success.
+- Arch Linux current: success.
+- Debian Trixie: success.
+- `snapshot-entrega`: success.
+- Build release, rustfmt, Clippy `-D warnings`, testes, rustdoc, auditoria POSIX e neutralidade de backend: aprovados.
 
-## Pendente para fechamento
+## Entrega compactada
 
-- validar novamente a revisão já normalizada/versionada;
-- registrar snapshot final e SHA-256;
-- handoff final;
-- integração/publicação na `main`.
+- Arquivo: `entrega/Nexxus_Etapa02_Window_Manager_Core_0.1.0.tar.gz`.
+- SHA-256: `26c39a1f87e2d0bc5fe6f1bfa9dd77437b354fe7f62eb59e70224889644ed9e1`.
+- Commit que adiciona snapshot e modos executáveis: `ab51cd12c5663fd29d9131b8f62dc7338f627d41`.
 
-Nenhuma etapa posterior foi iniciada nesta conversa.
+## Distribuição
+
+- REVISADO: SIM.
+- COMPILADO: SIM.
+- TESTADO: SIM.
+- EMPACOTADO NATIVO: N/A — biblioteca interna sem payload runtime.
+- INSTALADO: N/A.
+- VALIDADO: SIM.
+- ENTREGA_COMPACTADA: VALIDADA / VERSIONADA.
+
+Nenhuma etapa posterior foi iniciada nesta conversa. O próximo passo desta etapa é exclusivamente integrar a entrega validada à `main` e registrar o handoff final.
