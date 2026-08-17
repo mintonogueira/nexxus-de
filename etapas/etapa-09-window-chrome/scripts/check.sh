@@ -7,7 +7,8 @@ ROOT_DIR=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)
 cd "$ROOT_DIR"
 
 # A normalização acontece antes do check para que o snapshot/commit final da
-# etapa contenha exatamente o formato canônico produzido pelo rustfmt.
+# etapa contenha exatamente o formato canônico produzido pelo rustfmt/clippy.
+sh ./scripts/normalize-source.sh
 cargo fmt --all
 cargo fmt --all -- --check
 cargo clippy --workspace --all-targets --all-features -- -D warnings
