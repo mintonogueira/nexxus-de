@@ -38,8 +38,17 @@ sed -e "s/@VERSION@/$NEXXUS_VERSION/" -e "s/@ARCH@/$arch/" "$ROOT_DIR/packaging/
 final_package="$DIST_DIR/nexxus-backend-x11_${NEXXUS_VERSION}_${arch}.deb"
 dpkg-deb --root-owner-group --build "$PKG_ROOT" "$final_package" >/dev/null
 dpkg-deb --info "$final_package" >/dev/null || die 'dpkg-deb rejeitou metadados'
-dpkg-deb --contents "$final_package" | grep -q './usr/bin/nexxus-x11-backend-check$' || die 'binário ausente do .deb'
+contents_file="$BUILD_DIR/package-contents.txt"
+dpkg-deb --contents "$final_package" > "$contents_file"
+grep -q './usr/bin/nexxus-x11-backend-check$' "$contents_file" || die 'binário ausente do .deb'
 log_msg "[install] instalando exatamente $final_package"
 run_privileged apt-get install -y "$final_package"
 command -v nexxus-x11-backend-check >/dev/null 2>&1 || die 'binário não encontrado após instalação'
+
+# O teste pós-instalação executa o binário que veio do pacote, sob um X server
+# isolado, provando que o artefato instalado consegue assumir o papel de WM.
+start_test_xserver
+if run_logged nexxus-x11-backend-check --check; then smoke_status=0; else smoke_status=$?; fi
+stop_test_xserver
+[ "$smoke_status" -eq 0 ] || die 'smoke test do pacote Debian instalado falhou'
 log_msg "[status] pacote=$(basename "$final_package") sha256=$(sha256_file "$final_package")"
