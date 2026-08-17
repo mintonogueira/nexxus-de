@@ -55,7 +55,12 @@ build_and_test_workspace() {
     log_msg '[test] executando fmt, clippy, testes, rustdoc e auditorias de fronteira'
     run_logged sh "$ROOT_DIR/scripts/check.sh" || die 'validação do UI Core falhou'
     log_msg '[demo] executando harness e medição inicial de footprint'
-    BUILD_DIR="$BUILD_DIR/metrics" run_logged sh "$ROOT_DIR/scripts/measure-footprint.sh" || die 'medição de footprint falhou'
+
+    # run_logged grava seu arquivo temporário antes de executar o comando.
+    # Portanto, o diretório específico da medição precisa existir previamente.
+    _metrics_build_dir="$BUILD_DIR/metrics"
+    mkdir -p "$_metrics_build_dir"
+    BUILD_DIR="$_metrics_build_dir" run_logged sh "$ROOT_DIR/scripts/measure-footprint.sh" || die 'medição de footprint falhou'
 }
 
 prepare_staging() {
