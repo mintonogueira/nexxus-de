@@ -145,7 +145,7 @@ jobs:
           cp "$out/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz.sha256" etapas/etapa-03-session-runtime/entrega/
           cat "$out/Nexxus_Etapa03_Session_Runtime_0.1.0.tar.gz.sha256"
       - name: Publicar artefatos validados na branch da etapa
-        if: ${{ github.ref_name == 'etapa-03-session-runtime' }}
+        if: ${{ startsWith(github.ref_name, 'etapa-03-session-runtime') }}
         shell: sh
         run: |
           set -eu
@@ -159,7 +159,7 @@ jobs:
             exit 0
           fi
           git commit -m 'build(etapa-03): publica pacotes e snapshot validados [skip ci]'
-          git push origin HEAD:etapa-03-session-runtime
+          git push origin HEAD:"$GITHUB_REF_NAME"
       - name: Exportar snapshot validado
         uses: actions/upload-artifact@v4
         with:
