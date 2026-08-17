@@ -1,0 +1,46 @@
+# Fallbacks para aplicações sem ícone próprio.
+schema_version = 1
+
+[[fallbacks]]
+category = "AudioVideo"
+icon = "applications-multimedia"
+
+[[fallbacks]]
+category = "Development"
+icon = "applications-development"
+
+[[fallbacks]]
+category = "Education"
+icon = "application-x-generic"
+
+[[fallbacks]]
+category = "Game"
+icon = "applications-other"
+
+[[fallbacks]]
+category = "Graphics"
+icon = "applications-graphics"
+
+[[fallbacks]]
+category = "Network"
+icon = "applications-internet"
+
+[[fallbacks]]
+category = "Office"
+icon = "applications-office"
+
+[[fallbacks]]
+category = "Settings"
+icon = "preferences-system"
+
+[[fallbacks]]
+category = "System"
+icon = "applications-system"
+
+[[fallbacks]]
+category = "Utility"
+icon = "applications-utilities"
+
+[[fallbacks]]
+category = "Other"
+icon = "application-x-generic"

@@ -1,0 +1,67 @@
+# Nexxus Visual Assets manifest v1.
+schema_version = 1
+package = "nexxus-visual-assets"
+version = "0.1.0"
+default_font_family = "Hack"
+symbolic_palette_token = "#FFFFFF"
+system_asset_root = "/usr/share/nexxus/assets"
+icon_root = "icons"
+wallpaper_root = "wallpapers"
+
+actions = ["edit-copy", "edit-cut", "edit-delete", "edit-find", "edit-paste", "list-add", "list-remove", "media-eject", "system-lock-screen", "system-log-out", "system-reboot", "system-search", "system-shutdown", "view-fullscreen", "view-refresh", "view-restore", "window-close", "window-float", "window-maximize", "window-minimize", "window-restore", "window-tile"]
+categories = ["applications-accessories", "applications-development", "applications-graphics", "applications-internet", "applications-multimedia", "applications-office", "applications-other", "applications-system", "applications-utilities", "preferences-audio", "preferences-bluetooth", "preferences-desktop", "preferences-display", "preferences-keyboard", "preferences-mouse", "preferences-notifications", "preferences-power", "preferences-system", "preferences-system-network", "preferences-tiling", "preferences-workspaces"]
+devices = ["audio-card", "audio-input-microphone", "audio-volume-high", "audio-volume-muted", "battery", "bluetooth", "drive-harddisk", "drive-removable-media", "input-keyboard", "input-mouse", "network-wired", "network-wireless", "video-display"]
+mimetypes = ["application-x-generic", "audio-x-generic", "image-x-generic", "package-x-generic", "text-x-generic", "video-x-generic"]
+places = ["folder", "folder-open", "folder-remote", "network-server", "user-bookmarks", "user-desktop", "user-home", "user-trash"]
+status = ["battery-charging", "battery-low", "bluetooth-active", "bluetooth-disabled", "dialog-error", "dialog-information", "dialog-warning", "network-error", "network-offline", "network-online", "notification", "notification-disabled"]
+
+[[wallpapers]]
+name="01-cyber-grid"
+file="01-cyber-grid.svg"
+category="cyberpunk"
+size=[1920,1080]
+[[wallpapers]]
+name="02-neon-horizon"
+file="02-neon-horizon.svg"
+category="cyberpunk"
+size=[1920,1080]
+[[wallpapers]]
+name="03-data-rain"
+file="03-data-rain.svg"
+category="cyberpunk"
+size=[1920,1080]
+[[wallpapers]]
+name="04-steam-foundry"
+file="04-steam-foundry.svg"
+category="steampunk"
+size=[1920,1080]
+[[wallpapers]]
+name="05-brass-circuit"
+file="05-brass-circuit.svg"
+category="steampunk"
+size=[1920,1080]
+[[wallpapers]]
+name="06-hybrid-forge"
+file="06-hybrid-forge.svg"
+category="hybrid"
+size=[1920,1080]
+[[wallpapers]]
+name="07-terminal-city"
+file="07-terminal-city.svg"
+category="cyberpunk"
+size=[1920,1080]
+[[wallpapers]]
+name="08-signature-lines"
+file="08-signature-lines.svg"
+category="signature"
+size=[1920,1080]
+[[wallpapers]]
+name="09-minimal-hex"
+file="09-minimal-hex.svg"
+category="signature"
+size=[1920,1080]
+[[wallpapers]]
+name="10-dark-mountain"
+file="10-dark-mountain.svg"
+category="minimal"
+size=[1920,1080]

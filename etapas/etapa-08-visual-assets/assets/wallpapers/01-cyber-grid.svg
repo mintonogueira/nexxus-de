@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#060A08"/>
+  <path d="M0 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M120 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M240 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M360 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M480 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M600 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M720 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M840 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M960 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M1080 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M1200 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M1320 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M1440 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M1560 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M1680 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M1800 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M1920 0V1080" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 0H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 90H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 180H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 270H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 360H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 450H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 540H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 630H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 720H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 810H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 900H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 990H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 1080H1920" stroke="#10271A" stroke-width="2"/>
+  <path d="M0 820L420 520 760 700 1100 370 1480 610 1920 280V1080H0Z" fill="#0B1711"/>
+  <path d="M0 820L420 520 760 700 1100 370 1480 610 1920 280" fill="none" stroke="#36F57B" stroke-width="6"/>
+  <path d="M0 900H1920" stroke="#1C5533" stroke-width="3"/>
+</svg>

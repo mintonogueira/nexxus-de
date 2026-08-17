@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#05090D"/>
+  <path d="M0 560H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 600H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 640H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 680H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 720H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 760H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 800H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 840H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 880H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 920H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 960H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M0 1000H1920" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L-960 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L-800 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L-640 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L-480 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L-320 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L-160 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L0 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L160 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L320 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L480 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L640 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L800 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L960 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L1120 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L1280 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L1440 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L1600 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L1760 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L1920 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L2080 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L2240 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L2400 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L2560 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L2720 1080" stroke="#123046" stroke-width="2"/>
+  <path d="M960 520L2880 1080" stroke="#123046" stroke-width="2"/>
+  <circle cx="960" cy="400" r="160" fill="#0A1820" stroke="#33D6FF" stroke-width="5"/>
+  <path d="M0 520H1920" stroke="#33D6FF" stroke-width="4"/>
+  <path d="M760 400H1160" stroke="#0A1820" stroke-width="12"/>
+</svg>
