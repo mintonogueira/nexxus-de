@@ -88,8 +88,8 @@ impl FinderController {
         self.refresh_results();
     }
 
-    /// Handles Finder-level navigation before delegating text editing and
-    /// pointer hit-testing to Nexxus UI Core.
+    /// Handles Finder-level navigation before delegating text editing and query
+    /// hit-testing to Nexxus UI Core.
     pub fn handle_event(&mut self, event: &UiEvent) -> FinderAction {
         if !self.state.visible {
             return FinderAction::None;
@@ -112,19 +112,30 @@ impl FinderController {
                 self.move_selection(-1);
                 return FinderAction::None;
             }
+            UiEvent::PointerDown {
+                position,
+                button: PointerButton::Primary,
+            } => {
+                if let Some(selected) = self.view.result_at(*position) {
+                    self.state.selected = Some(selected);
+                    self.view.set_selection(self.state.selected);
+                    return FinderAction::None;
+                }
+            }
+            UiEvent::PointerUp {
+                position,
+                button: PointerButton::Primary,
+            } => {
+                if let Some(selected) = self.view.result_at(*position) {
+                    self.state.selected = Some(selected);
+                    self.view.set_selection(self.state.selected);
+                    return self.launch_selected();
+                }
+            }
             _ => {}
         }
 
-        let pointer_release = matches!(
-            event,
-            UiEvent::PointerUp {
-                button: PointerButton::Primary,
-                ..
-            }
-        );
-        let messages = self.view.handle_event(event);
-        let mut launch_from_pointer = false;
-        for message in messages {
+        for message in self.view.handle_event(event) {
             match message {
                 UiMessage::TextChanged { id, text } if id == self.view.query_id() => {
                     self.state.query = text;
@@ -133,21 +144,10 @@ impl FinderController {
                 UiMessage::Submitted { id, .. } if id == self.view.query_id() => {
                     return self.launch_selected();
                 }
-                UiMessage::ListSelectionChanged { id, selected }
-                    if id == self.view.results_id() =>
-                {
-                    self.state.selected = Some(selected);
-                    launch_from_pointer |= pointer_release;
-                }
                 _ => {}
             }
         }
-
-        if launch_from_pointer {
-            self.launch_selected()
-        } else {
-            FinderAction::None
-        }
+        FinderAction::None
     }
 
     fn refresh_results(&mut self) {
@@ -162,7 +162,7 @@ impl FinderController {
         let len = self.state.results.len();
         if len == 0 {
             self.state.selected = None;
-            self.view.set_results(&self.state.results, None);
+            self.view.set_selection(None);
             return;
         }
 
@@ -173,8 +173,7 @@ impl FinderController {
             (current + 1).min(len - 1)
         };
         self.state.selected = Some(next);
-        self.view
-            .set_results(&self.state.results, self.state.selected);
+        self.view.set_selection(self.state.selected);
     }
 
     fn launch_selected(&self) -> FinderAction {
@@ -189,6 +188,7 @@ impl FinderController {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use nexxus_ui::{LogicalPoint, LogicalRect, Theme};
     use nexxus_xdg_application_index::IconReference;
 
     fn corpus() -> FinderCorpus {
@@ -219,8 +219,9 @@ mod tests {
     fn shortcut_opens_and_escape_closes() {
         let mut controller = FinderController::new(corpus());
         assert_eq!(
-            controller
-                .handle_shortcut_target(CommandTarget::Launcher(LauncherAction::ApplicationFinder)),
+            controller.handle_shortcut_target(CommandTarget::Launcher(
+                LauncherAction::ApplicationFinder
+            )),
             FinderAction::Opened
         );
         assert!(controller.state().visible);
@@ -260,6 +261,24 @@ mod tests {
             modifiers: Default::default(),
         });
         assert_eq!(controller.state().selected, Some(1));
+    }
+
+    #[test]
+    fn primary_mouse_release_launches_the_hit_result() {
+        let mut controller = FinderController::new(corpus());
+        controller.open();
+        controller
+            .view_mut()
+            .layout(LogicalRect::new(0.0, 0.0, 560.0, 360.0), &Theme::default());
+        // Query occupies the first 32 logical pixels plus the 8-pixel gap. The
+        // second row therefore starts 36 pixels below the result area origin.
+        assert_eq!(
+            controller.handle_event(&UiEvent::PointerUp {
+                position: LogicalPoint::new(20.0, 82.0),
+                button: PointerButton::Primary,
+            }),
+            FinderAction::Launch("b.desktop".to_owned())
+        );
     }
 
     #[test]
