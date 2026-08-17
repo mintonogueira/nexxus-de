@@ -70,9 +70,7 @@ impl FinderCorpus {
     pub fn from_snapshot<P: CommentProvider>(snapshot: &IndexSnapshot, comments: &P) -> Self {
         let mut documents: Vec<_> = snapshot
             .visible_entries()
-            .map(|record| {
-                SearchDocument::from_application(record, comments.comment_for(record))
-            })
+            .map(|record| SearchDocument::from_application(record, comments.comment_for(record)))
             .collect();
         documents.sort_by(document_order);
         Self {
@@ -104,11 +102,7 @@ impl FinderCorpus {
     pub fn search(&self, query: &str) -> Vec<FinderMatch> {
         let normalized = normalize(query);
         if normalized.is_empty() {
-            return self
-                .documents
-                .iter()
-                .map(FinderMatch::unfiltered)
-                .collect();
+            return self.documents.iter().map(FinderMatch::unfiltered).collect();
         }
 
         let tokens: Vec<&str> = normalized.split_whitespace().collect();
@@ -170,8 +164,16 @@ fn normalize(value: &str) -> String {
 fn score_document(document: &SearchDocument, tokens: &[&str]) -> Option<(i32, MatchField)> {
     let name = normalize(&document.name);
     let desktop_id = normalize(&document.desktop_id);
-    let keywords: Vec<String> = document.keywords.iter().map(|value| normalize(value)).collect();
-    let categories: Vec<String> = document.categories.iter().map(|value| normalize(value)).collect();
+    let keywords: Vec<String> = document
+        .keywords
+        .iter()
+        .map(|value| normalize(value))
+        .collect();
+    let categories: Vec<String> = document
+        .categories
+        .iter()
+        .map(|value| normalize(value))
+        .collect();
     let comment = document.comment.as_deref().map(normalize);
 
     let mut total = 0i32;
@@ -191,7 +193,10 @@ fn score_document(document: &SearchDocument, tokens: &[&str]) -> Option<(i32, Ma
                 .map(|score| (score, MatchField::DesktopId)),
         ];
 
-        let best = candidates.into_iter().flatten().max_by_key(|candidate| candidate.0)?;
+        let best = candidates
+            .into_iter()
+            .flatten()
+            .max_by_key(|candidate| candidate.0)?;
         total = total.saturating_add(best.0);
         strongest = match strongest {
             None => Some(best.1),
@@ -236,13 +241,7 @@ fn score_collection(
         .max()
 }
 
-fn score_text(
-    value: &str,
-    token: &str,
-    exact: i32,
-    prefix: i32,
-    contains: i32,
-) -> Option<i32> {
+fn score_text(value: &str, token: &str, exact: i32, prefix: i32, contains: i32) -> Option<i32> {
     if value == token {
         Some(exact)
     } else if value.starts_with(token) {

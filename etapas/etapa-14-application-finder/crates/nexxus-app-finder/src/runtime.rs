@@ -62,10 +62,7 @@ impl FinderRuntime {
         self.controller.handle_shortcut_target(target)
     }
 
-    pub fn handle_ui_event(
-        &mut self,
-        event: &UiEvent,
-    ) -> Result<FinderAction, FinderRuntimeError> {
+    pub fn handle_ui_event(&mut self, event: &UiEvent) -> Result<FinderAction, FinderRuntimeError> {
         self.refresh_index();
         let action = self.controller.handle_event(event);
         if let FinderAction::Launch(desktop_id) = &action {
