@@ -91,7 +91,8 @@ impl X11WorkspaceBar {
         let black_pixel = screen.black_pixel;
         let fallback_width = screen.width_in_pixels;
         let fallback_height = screen.height_in_pixels;
-        let monitor = discover_primary_monitor(&conn, root, fallback_width, fallback_height, scale)?;
+        let monitor =
+            discover_primary_monitor(&conn, root, fallback_width, fallback_height, scale)?;
         let metrics = WorkspaceBarMetrics::default();
         let model = WorkspaceBarModel::from_manager(manager);
         let layout = build_layout(monitor, &model, metrics)?;
@@ -99,8 +100,10 @@ impl X11WorkspaceBar {
         let window = conn.generate_id().map_err(operation_error)?;
         let gc = conn.generate_id().map_err(operation_error)?;
         let physical = scale.physical_rect(layout.window);
-        let width = u16::try_from(physical.width.max(1)).map_err(|_| WorkspaceBarX11Error::DimensionOverflow)?;
-        let height = u16::try_from(physical.height.max(1)).map_err(|_| WorkspaceBarX11Error::DimensionOverflow)?;
+        let width = u16::try_from(physical.width.max(1))
+            .map_err(|_| WorkspaceBarX11Error::DimensionOverflow)?;
+        let height = u16::try_from(physical.height.max(1))
+            .map_err(|_| WorkspaceBarX11Error::DimensionOverflow)?;
         let x = i16::try_from(physical.x).map_err(|_| WorkspaceBarX11Error::DimensionOverflow)?;
         let y = i16::try_from(physical.y).map_err(|_| WorkspaceBarX11Error::DimensionOverflow)?;
         let aux = CreateWindowAux::new()
@@ -127,7 +130,8 @@ impl X11WorkspaceBar {
             &aux,
         )
         .map_err(operation_error)?;
-        conn.create_gc(gc, window, &CreateGCAux::new()).map_err(operation_error)?;
+        conn.create_gc(gc, window, &CreateGCAux::new())
+            .map_err(operation_error)?;
         let atoms = Atoms::load(&conn)?;
         conn.change_property32(
             PropMode::REPLACE,
@@ -168,7 +172,10 @@ impl X11WorkspaceBar {
 
     /// Recria o snapshot visual quando o consumidor prefere sincronização por
     /// estado completo em vez de fan-out incremental de eventos.
-    pub fn sync_from_manager(&mut self, manager: &WorkspaceManager) -> Result<(), WorkspaceBarX11Error> {
+    pub fn sync_from_manager(
+        &mut self,
+        manager: &WorkspaceManager,
+    ) -> Result<(), WorkspaceBarX11Error> {
         self.model = WorkspaceBarModel::from_manager(manager);
         self.relayout_and_redraw()
     }
@@ -249,7 +256,10 @@ impl X11WorkspaceBar {
                 let previous = manager.active_id();
                 manager.activate(id)?;
                 if previous != id {
-                    self.model.apply_event(&WorkspaceEvent::Activated { previous, current: id });
+                    self.model.apply_event(&WorkspaceEvent::Activated {
+                        previous,
+                        current: id,
+                    });
                     self.redraw()?;
                 }
                 Ok(None)
@@ -282,7 +292,9 @@ impl X11WorkspaceBar {
         let frame = self.painter.render(
             &self.model,
             &self.layout,
-            WorkspaceBarVisualState { interaction: self.interaction },
+            WorkspaceBarVisualState {
+                interaction: self.interaction,
+            },
             self.scale,
         )?;
         upload_frame(&self.conn, self.root_depth, self.window, self.gc, &frame)?;
@@ -303,7 +315,11 @@ fn build_layout(
     model: &WorkspaceBarModel,
     metrics: WorkspaceBarMetrics,
 ) -> Result<WorkspaceBarLayout, WorkspaceBarX11Error> {
-    let labels: Vec<_> = model.entries().iter().map(|entry| (entry.id, entry.name.as_str())).collect();
+    let labels: Vec<_> = model
+        .entries()
+        .iter()
+        .map(|entry| (entry.id, entry.name.as_str()))
+        .collect();
     WorkspaceBarLayout::build(&[monitor], &labels, metrics).ok_or(WorkspaceBarX11Error::NoMonitor)
 }
 
@@ -314,9 +330,17 @@ fn discover_primary_monitor(
     fallback_height: u16,
     scale: ScaleFactor,
 ) -> Result<MonitorGeometry, WorkspaceBarX11Error> {
-    let reply = conn.randr_get_monitors(root, true).map_err(operation_error)?.reply();
+    let reply = conn
+        .randr_get_monitors(root, true)
+        .map_err(operation_error)?
+        .reply();
     if let Ok(reply) = reply {
-        if let Some(monitor) = reply.monitors.iter().find(|monitor| monitor.primary).or_else(|| reply.monitors.first()) {
+        if let Some(monitor) = reply
+            .monitors
+            .iter()
+            .find(|monitor| monitor.primary)
+            .or_else(|| reply.monitors.first())
+        {
             return Ok(MonitorGeometry {
                 rect: LogicalRect::new(
                     monitor.x as f32 / scale.get(),
@@ -348,9 +372,15 @@ fn upload_frame(
     gc: u32,
     frame: &nexxus_ui::Frame,
 ) -> Result<(), WorkspaceBarX11Error> {
-    let width = u16::try_from(frame.size.width).map_err(|_| WorkspaceBarX11Error::DimensionOverflow)?;
-    let height = u16::try_from(frame.size.height).map_err(|_| WorkspaceBarX11Error::DimensionOverflow)?;
-    let format = conn.setup().pixmap_formats.iter().find(|format| format.depth == root_depth);
+    let width =
+        u16::try_from(frame.size.width).map_err(|_| WorkspaceBarX11Error::DimensionOverflow)?;
+    let height =
+        u16::try_from(frame.size.height).map_err(|_| WorkspaceBarX11Error::DimensionOverflow)?;
+    let format = conn
+        .setup()
+        .pixmap_formats
+        .iter()
+        .find(|format| format.depth == root_depth);
     if format.is_some_and(|format| format.bits_per_pixel == 32) {
         let mut bgrx = Vec::with_capacity(frame.pixels.len());
         for rgba in frame.pixels.chunks_exact(4) {
@@ -370,7 +400,8 @@ fn upload_frame(
         )
         .map_err(operation_error)?;
     } else {
-        conn.clear_area(false, drawable, 0, 0, width, height).map_err(operation_error)?;
+        conn.clear_area(false, drawable, 0, 0, width, height)
+            .map_err(operation_error)?;
     }
     Ok(())
 }

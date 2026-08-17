@@ -10,7 +10,10 @@ use nexxus_ui::{
 };
 use thiserror::Error;
 
-use crate::{InteractionState, WorkspaceBarLayout, WorkspaceBarMetrics, WorkspaceBarModel, WorkspaceBarTarget};
+use crate::{
+    InteractionState, WorkspaceBarLayout, WorkspaceBarMetrics, WorkspaceBarModel,
+    WorkspaceBarTarget,
+};
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
 pub struct WorkspaceBarVisualState {
@@ -39,9 +42,11 @@ impl AssetSource {
     }
 
     fn symbolic(&self, name: &str, color: Color) -> Result<Vec<u8>, WorkspaceBarRenderError> {
-        let spec = icon(name).ok_or_else(|| WorkspaceBarRenderError::MissingIcon(name.to_owned()))?;
+        let spec =
+            icon(name).ok_or_else(|| WorkspaceBarRenderError::MissingIcon(name.to_owned()))?;
         let path = self.root.join("icons").join(spec.relative_path);
-        let bytes = fs::read(&path).map_err(|source| WorkspaceBarRenderError::ReadAsset { path, source })?;
+        let bytes = fs::read(&path)
+            .map_err(|source| WorkspaceBarRenderError::ReadAsset { path, source })?;
         if !spec.tintable {
             return Ok(bytes);
         }
@@ -76,7 +81,12 @@ pub struct WorkspaceBarPainter {
 
 impl WorkspaceBarPainter {
     pub fn new(theme: Theme, metrics: WorkspaceBarMetrics, assets: AssetSource) -> Self {
-        Self { theme, metrics, assets, renderer: SoftwareRenderer::new() }
+        Self {
+            theme,
+            metrics,
+            assets,
+            renderer: SoftwareRenderer::new(),
+        }
     }
 
     pub fn display_list(
@@ -95,7 +105,9 @@ impl WorkspaceBarPainter {
         });
 
         for button in &layout.workspaces {
-            let Some(entry) = model.entries().iter().find(|entry| entry.id == button.id) else { continue; };
+            let Some(entry) = model.entries().iter().find(|entry| entry.id == button.id) else {
+                continue;
+            };
             let target = WorkspaceBarTarget::Workspace(entry.id);
             let hovered = visual.interaction.hovered == Some(target);
             let pressed = visual.interaction.pressed == Some(target);
@@ -108,13 +120,24 @@ impl WorkspaceBarPainter {
             } else {
                 palette.surface
             };
-            list.push(DrawCommand::FillRect { rect: button.rect, color: background });
+            list.push(DrawCommand::FillRect {
+                rect: button.rect,
+                color: background,
+            });
             list.push(DrawCommand::StrokeRect {
                 rect: button.rect,
-                color: if entry.active { palette.accent } else { palette.border },
+                color: if entry.active {
+                    palette.accent
+                } else {
+                    palette.border
+                },
                 width: self.metrics.border_width,
             });
-            let text_color = if entry.active { palette.accent_text } else { palette.text };
+            let text_color = if entry.active {
+                palette.accent_text
+            } else {
+                palette.text
+            };
             let style = TextStyle::new(
                 self.theme.typography.family.clone(),
                 self.theme.typography.body_size,
@@ -128,7 +151,11 @@ impl WorkspaceBarPainter {
                 (button.rect.width - self.metrics.padding * 4.0).max(0.0),
                 button.rect.height,
             );
-            list.push(DrawCommand::Text { rect: text_rect, text: entry.name.clone(), style });
+            list.push(DrawCommand::Text {
+                rect: text_rect,
+                text: entry.name.clone(),
+                style,
+            });
             list.push(DrawCommand::PopClip);
         }
 
@@ -140,21 +167,33 @@ impl WorkspaceBarPainter {
         } else {
             palette.surface
         };
-        list.push(DrawCommand::FillRect { rect: layout.settings, color: settings_background });
+        list.push(DrawCommand::FillRect {
+            rect: layout.settings,
+            color: settings_background,
+        });
         list.push(DrawCommand::StrokeRect {
             rect: layout.settings,
             color: palette.border,
             width: self.metrics.border_width,
         });
-        let svg = self.assets.symbolic("preferences-workspaces", palette.text)?;
-        let icon_size = self.metrics.icon_size.min(layout.settings.width).min(layout.settings.height);
+        let svg = self
+            .assets
+            .symbolic("preferences-workspaces", palette.text)?;
+        let icon_size = self
+            .metrics
+            .icon_size
+            .min(layout.settings.width)
+            .min(layout.settings.height);
         let icon_rect = LogicalRect::new(
             layout.settings.x + (layout.settings.width - icon_size) * 0.5,
             layout.settings.y + (layout.settings.height - icon_size) * 0.5,
             icon_size,
             icon_size,
         );
-        list.push(DrawCommand::Svg { rect: icon_rect, bytes: svg });
+        list.push(DrawCommand::Svg {
+            rect: icon_rect,
+            bytes: svg,
+        });
         Ok(list)
     }
 

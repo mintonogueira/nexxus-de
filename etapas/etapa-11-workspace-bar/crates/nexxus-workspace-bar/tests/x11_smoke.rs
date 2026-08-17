@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
 use nexxus_ui::{ScaleFactor, Theme};
-use nexxus_workspaces::WorkspaceManager;
 use nexxus_workspace_bar::{AssetSource, x11::X11WorkspaceBar};
+use nexxus_workspaces::WorkspaceManager;
 
 #[test]
 fn creates_workspace_bar_surface_on_x11() {
@@ -10,8 +10,8 @@ fn creates_workspace_bar_surface_on_x11() {
         return;
     }
     let manager = WorkspaceManager::with_single_fixed("WEB").unwrap();
-    let assets = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../../etapa-08-visual-assets/assets");
+    let assets =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../etapa-08-visual-assets/assets");
     let bar = X11WorkspaceBar::connect(
         None,
         &manager,

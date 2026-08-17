@@ -19,13 +19,19 @@ pub struct InteractionState {
 }
 
 impl InteractionState {
-    pub fn hit_test(layout: &WorkspaceBarLayout, point: LogicalPoint) -> Option<WorkspaceBarTarget> {
+    pub fn hit_test(
+        layout: &WorkspaceBarLayout,
+        point: LogicalPoint,
+    ) -> Option<WorkspaceBarTarget> {
         for workspace in &layout.workspaces {
             if workspace.rect.contains(point) {
                 return Some(WorkspaceBarTarget::Workspace(workspace.id));
             }
         }
-        layout.settings.contains(point).then_some(WorkspaceBarTarget::Settings)
+        layout
+            .settings
+            .contains(point)
+            .then_some(WorkspaceBarTarget::Settings)
     }
 
     pub fn pointer_move(&mut self, layout: &WorkspaceBarLayout, point: LogicalPoint) -> bool {

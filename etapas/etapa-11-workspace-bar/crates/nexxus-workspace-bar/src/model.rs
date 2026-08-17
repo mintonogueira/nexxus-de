@@ -44,14 +44,19 @@ impl WorkspaceBarModel {
     }
 
     pub fn active_id(&self) -> Option<WorkspaceId> {
-        self.entries.iter().find(|entry| entry.active).map(|entry| entry.id)
+        self.entries
+            .iter()
+            .find(|entry| entry.active)
+            .map(|entry| entry.id)
     }
 
     /// Aplica somente eventos que alteram o que é visível na barra. Eventos de
     /// associação de janelas não mudam o conteúdo visual e são ignorados.
     pub fn apply_event(&mut self, event: &WorkspaceEvent) -> bool {
         match event {
-            WorkspaceEvent::Created { workspace, name, .. } => {
+            WorkspaceEvent::Created {
+                workspace, name, ..
+            } => {
                 if self.entries.iter().any(|entry| entry.id == *workspace) {
                     return false;
                 }
@@ -67,8 +72,13 @@ impl WorkspaceBarModel {
                 self.entries.retain(|entry| entry.id != *workspace);
                 self.entries.len() != before
             }
-            WorkspaceEvent::Renamed { workspace, new_name, .. } => {
-                let Some(entry) = self.entries.iter_mut().find(|entry| entry.id == *workspace) else {
+            WorkspaceEvent::Renamed {
+                workspace,
+                new_name,
+                ..
+            } => {
+                let Some(entry) = self.entries.iter_mut().find(|entry| entry.id == *workspace)
+                else {
                     return false;
                 };
                 if entry.name == *new_name {

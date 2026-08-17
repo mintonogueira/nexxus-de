@@ -16,4 +16,6 @@ pub mod x11;
 pub use input::{InteractionState, WorkspaceBarTarget};
 pub use layout::{MonitorGeometry, WorkspaceBarLayout, WorkspaceBarMetrics, WorkspaceButtonLayout};
 pub use model::{WorkspaceBarAction, WorkspaceBarEntry, WorkspaceBarModel};
-pub use render::{AssetSource, WorkspaceBarPainter, WorkspaceBarRenderError, WorkspaceBarVisualState};
+pub use render::{
+    AssetSource, WorkspaceBarPainter, WorkspaceBarRenderError, WorkspaceBarVisualState,
+};

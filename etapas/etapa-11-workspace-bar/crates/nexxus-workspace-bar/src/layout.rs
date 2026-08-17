@@ -68,8 +68,12 @@ impl WorkspaceBarLayout {
         workspace_labels: &[(WorkspaceId, &str)],
         metrics: WorkspaceBarMetrics,
     ) -> Option<Self> {
-        let primary = monitors.iter().find(|monitor| monitor.primary).or_else(|| monitors.first())?;
-        let max_width = (primary.rect.width - metrics.side_margin * 2.0).max(metrics.settings_width);
+        let primary = monitors
+            .iter()
+            .find(|monitor| monitor.primary)
+            .or_else(|| monitors.first())?;
+        let max_width =
+            (primary.rect.width - metrics.side_margin * 2.0).max(metrics.settings_width);
         let gap_count = workspace_labels.len();
         let fixed = metrics.padding * 2.0 + metrics.settings_width + metrics.gap * gap_count as f32;
         let available_for_workspaces = (max_width - fixed).max(0.0);
@@ -98,7 +102,9 @@ impl WorkspaceBarLayout {
             widths.fill(equal);
             total = fixed + widths.iter().sum::<f32>();
         }
-        total = total.min(max_width).max(metrics.settings_width + metrics.padding * 2.0);
+        total = total
+            .min(max_width)
+            .max(metrics.settings_width + metrics.padding * 2.0);
 
         let x = primary.rect.x + (primary.rect.width - total) * 0.5;
         let y = primary.rect.y + metrics.top_margin;
@@ -106,7 +112,8 @@ impl WorkspaceBarLayout {
         let mut cursor = metrics.padding;
         let mut workspaces = Vec::with_capacity(workspace_labels.len());
         for ((id, _), width) in workspace_labels.iter().zip(widths) {
-            let remaining = (total - cursor - metrics.settings_width - metrics.padding - metrics.gap).max(0.0);
+            let remaining =
+                (total - cursor - metrics.settings_width - metrics.padding - metrics.gap).max(0.0);
             let width = width.min(remaining);
             let rect = LogicalRect::new(cursor, 0.0, width, metrics.height);
             workspaces.push(WorkspaceButtonLayout { id: *id, rect });
@@ -118,6 +125,10 @@ impl WorkspaceBarLayout {
             metrics.settings_width,
             metrics.height,
         );
-        Some(Self { window, workspaces, settings })
+        Some(Self {
+            window,
+            workspaces,
+            settings,
+        })
     }
 }
