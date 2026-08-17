@@ -1,12 +1,12 @@
 # NEXXUS — ETAPA 10 — Shortcuts Core
 
 **Versão:** 0.1.0  
-**Status:** EM IMPLEMENTAÇÃO  
+**Status:** VALIDADO EM BRANCH  
 **Data:** 2026-08-17
 
-## Escopo
+## Escopo entregue
 
-Esta etapa implementa a infraestrutura central de atalhos globais do Nexxus:
+A etapa implementa a infraestrutura central de atalhos globais do Nexxus:
 
 - command registry e binding registry;
 - representação backend-neutral de teclas, modificadores e combinações;
@@ -23,8 +23,6 @@ A UI completa de configuração pertence à etapa de Settings pertinente e não 
 
 ## Contrato de dispatch
 
-Shortcuts Core resolve:
-
 `Trigger -> CommandId -> CommandDescriptor -> CommandTarget`
 
 O host que compõe a sessão implementa `ShortcutDispatchSink` e encaminha o alvo lógico ao módulo proprietário. Assim, esta etapa não incorpora estado interno de WM, Workspace Manager, Tiling Engine, launchers, sessão, captura, áudio ou brilho.
@@ -35,17 +33,21 @@ O host que compõe a sessão implementa `ShortcutDispatchSink` e encaminha o alv
 
 ## X11
 
-O adaptador usa `x11rb` 0.14, o mesmo binding estrutural já usado pelo backend X11 do Nexxus. Ele consulta o mapa real do servidor, descobre os grupos de Alt/Super e cria passive grabs tolerando estados de Caps Lock, Num Lock e Scroll Lock.
+O adaptador usa `x11rb` 0.14. Ele consulta o mapa real do servidor, descobre os grupos de Alt/Super e cria passive grabs tolerando estados de Caps Lock, Num Lock e Scroll Lock. Erro de grab produz falha explícita e rollback.
 
-Quando existe binding para um modificador isolado, o grab desse modificador inicia o active grab X11; chords que o contêm não recebem grabs passivos redundantes.
+## Validação registrada
 
-## Build e validação
+GitHub Actions run `32000106232`: Arch Linux, Debian Trixie e delivery concluíram com sucesso. Foram executados release build, rustfmt restrito ao módulo, Clippy `-D warnings`, 15 testes unitários, teste X11 real sob Xvfb, rustdoc, staging e geração do snapshot.
+
+## Build e distribuição
 
 Os wrappers de orquestração permanecem separados e 100% POSIX:
 
-- `scripts/build-install-arch.sh`
-- `scripts/build-install-debian.sh`
+- `scripts/build-install-arch.sh`;
+- `scripts/build-install-debian.sh`.
 
-Eles autoprovisionam dependências, compilam como usuário normal, executam `rustfmt`, Clippy com warnings negados, testes, rustdoc e integração X11 real em Xvfb, e preparam staging isolado.
+Eles autoprovisionam dependências, compilam como usuário normal, testam e preparam staging isolado.
 
-O módulo é uma biblioteca/runtime integrável (`NEXXUS_INSTALLABLE=0`); não existe payload executável independente nesta etapa, portanto pacote binário/instalação permanecem `N/A` em vez de fabricar um pacote vazio.
+O módulo é uma biblioteca/runtime integrável (`NEXXUS_INSTALLABLE=0`); não existe payload executável independente nesta etapa, portanto pacote binário/instalação são `N/A` em vez de fabricar um pacote vazio.
+
+Consulte `HANDOFF.md` para contratos, validações, limites, artefatos e continuidade.
