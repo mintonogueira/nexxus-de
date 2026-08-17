@@ -157,9 +157,8 @@ mod tests {
         };
         let mut runtime = FinderRuntime::start(config).unwrap();
         assert_eq!(
-            runtime.handle_shortcut_target(CommandTarget::Launcher(
-                LauncherAction::ApplicationFinder
-            )),
+            runtime
+                .handle_shortcut_target(CommandTarget::Launcher(LauncherAction::ApplicationFinder)),
             FinderAction::Opened
         );
         assert_eq!(
@@ -177,7 +176,10 @@ mod tests {
                 .unwrap(),
             FinderAction::Launch("org.example.FinderAlpha.desktop".to_owned())
         );
-        assert!(wait_for_file(&marker), "selected application was not launched");
+        assert!(
+            wait_for_file(&marker),
+            "selected application was not launched"
+        );
         assert!(!runtime.controller().state().visible);
 
         drop(runtime);
