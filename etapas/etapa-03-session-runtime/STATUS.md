@@ -34,7 +34,7 @@ O workflow da Etapa 03 executa, nos dois cenários homologados desta etapa:
 - `nexxus-session --backend=wayland --check`;
 - geração e teste do snapshot de entrega.
 
-O fechamento desta etapa somente será marcado como **PUBLICADO/ENTREGUE** depois que o estado final estiver na branch canônica `main`, com handoff e referência Git registradas.
+A evidência final de validação é o workflow correspondente ao commit de entrega desta etapa; o fechamento só será marcado como **PUBLICADO/ENTREGUE** depois que o estado final estiver na branch canônica `main`, com handoff e referência Git registrados.
 
 ## Limite intencional
 
