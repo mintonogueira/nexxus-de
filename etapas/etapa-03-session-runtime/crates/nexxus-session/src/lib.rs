@@ -10,7 +10,7 @@ mod config;
 mod runtime;
 
 pub use config::{
-    SessionConfig, SessionConfigError, SESSION_CONFIG_SCHEMA, default_config_path, parse_backend,
+    SESSION_CONFIG_SCHEMA, SessionConfig, SessionConfigError, default_config_path, parse_backend,
 };
 pub use runtime::{
     BackendModule, SessionEnvironment, SessionRuntime, SessionRuntimeError, query_status,
