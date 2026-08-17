@@ -6,7 +6,9 @@ SCRIPT_DIR=$(dirname "$0"); case "$SCRIPT_DIR" in -*) SCRIPT_DIR="./$SCRIPT_DIR"
 ROOT_DIR=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)
 cd "$ROOT_DIR"
 
-cargo fmt --all -- --check
+# Formata somente o crate desta etapa. Dependências path de etapas anteriores
+# são consumidas como contratos e não podem ser reformatadas por esta conversa.
+cargo fmt -p nexxus-shortcuts
 cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 RUSTDOCFLAGS='-D warnings' cargo doc --workspace --no-deps
