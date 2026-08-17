@@ -54,7 +54,10 @@ fn run() -> Result<(), String> {
     if cli.check {
         println!("backend={}", backend_name(backend));
         println!("runtime_dir={}", runtime_dir.display());
-        println!("control_socket={}", runtime_dir.join("session.sock").display());
+        println!(
+            "control_socket={}",
+            runtime_dir.join("session.sock").display()
+        );
         println!("config={}", config_path.display());
         println!("backend_integration=unavailable-until-backend-stage");
         return Ok(());
