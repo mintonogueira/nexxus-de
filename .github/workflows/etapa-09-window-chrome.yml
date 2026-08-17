@@ -41,16 +41,17 @@ jobs:
           set -e
           cat /tmp/nexxus-window-chrome-debian.log
           if [ "$status" -ne 0 ]; then
-            tail -n 260 /tmp/nexxus-window-chrome-debian.log
             details=$(tail -n 80 /tmp/nexxus-window-chrome-debian.log | sed 's/%/%25/g' | awk 'NR == 1 { printf "%s", $0; next } { printf "%%0A%s", $0 }')
             printf '::error title=Etapa 09 Debian::%s\n' "$details"
             exit "$status"
           fi
-      - name: Exportar lockfile validado no Debian
+      - name: Exportar estado Rust validado no Debian
         uses: actions/upload-artifact@v4
         with:
           name: etapa-09-debian
-          path: etapas/etapa-09-window-chrome/Cargo.lock
+          path: |
+            etapas/etapa-09-window-chrome/Cargo.lock
+            etapas/etapa-09-window-chrome/crates/**/*.rs
           if-no-files-found: error
 
   archlinux-current:
@@ -76,7 +77,6 @@ jobs:
           set -e
           cat /tmp/nexxus-window-chrome-arch.log
           if [ "$status" -ne 0 ]; then
-            tail -n 260 /tmp/nexxus-window-chrome-arch.log
             details=$(tail -n 80 /tmp/nexxus-window-chrome-arch.log | sed 's/%/%25/g' | awk 'NR == 1 { printf "%s", $0; next } { printf "%%0A%s", $0 }')
             printf '::error title=Etapa 09 Arch::%s\n' "$details"
             exit "$status"
@@ -92,12 +92,12 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: etapa-09-window-chrome-impl
-      - name: Baixar lockfile validado
+      - name: Baixar estado Rust validado
         uses: actions/download-artifact@v5
         with:
           name: etapa-09-debian
           path: /tmp/etapa-09-debian
-      - name: Consolidar lockfile e snapshot
+      - name: Consolidar formato, lockfile e snapshot
         shell: sh
         run: |
           stage="$GITHUB_WORKSPACE/etapas/etapa-09-window-chrome"
@@ -105,6 +105,7 @@ jobs:
           [ -f "$lock_file" ] || { echo 'Cargo.lock validado não encontrado' >&2; exit 1; }
           cp "$lock_file" "$stage/Cargo.lock"
           cd "$stage"
+          cargo fmt --all
           sh ./scripts/check-posix.sh
           sh ./scripts/create-delivery.sh
       - name: Exportar snapshot da entrega
@@ -115,16 +116,15 @@ jobs:
             etapas/etapa-09-window-chrome/entrega/*.tar.gz
             etapas/etapa-09-window-chrome/entrega/*.sha256
           if-no-files-found: error
-      - name: Versionar artefatos validados
+      - name: Versionar estado validado
         shell: sh
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add etapas/etapa-09-window-chrome/Cargo.lock \
-                  etapas/etapa-09-window-chrome/entrega
+          git add etapas/etapa-09-window-chrome
           if git diff --cached --quiet; then
             echo 'Artefatos já correspondem ao estado validado.'
             exit 0
           fi
-          git commit -m 'build(etapa-09): publica lockfile e snapshot validados [skip ci]'
+          git commit -m 'build(etapa-09): publica estado e snapshot validados [skip ci]'
           git push origin HEAD:etapa-09-window-chrome-impl
