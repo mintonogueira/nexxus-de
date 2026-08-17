@@ -107,7 +107,7 @@ impl FinderCorpus {
             return self
                 .documents
                 .iter()
-                .map(|document| FinderMatch::unfiltered(document))
+                .map(FinderMatch::unfiltered)
                 .collect();
         }
 
