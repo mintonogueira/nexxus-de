@@ -1,11 +1,13 @@
 #!/bin/sh
-# Validação local da Etapa 11; não edita módulos anteriores.
+# Validação local da Etapa 11; normaliza somente o crate da própria etapa antes
+# das verificações e nunca edita módulos anteriores consumidos como dependência.
 set -eu
 
 SCRIPT_DIR=$(dirname "$0"); case "$SCRIPT_DIR" in -*) SCRIPT_DIR="./$SCRIPT_DIR" ;; esac
 ROOT_DIR=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)
 cd "$ROOT_DIR"
 
+cargo fmt -p nexxus-workspace-bar
 cargo fmt -p nexxus-workspace-bar -- --check
 cargo clippy -p nexxus-workspace-bar --all-targets -- -D warnings
 cargo test -p nexxus-workspace-bar
