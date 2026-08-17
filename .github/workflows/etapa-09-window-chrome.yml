@@ -105,6 +105,7 @@ jobs:
           [ -f "$lock_file" ] || { echo 'Cargo.lock validado não encontrado' >&2; exit 1; }
           cp "$lock_file" "$stage/Cargo.lock"
           cd "$stage"
+          sh ./scripts/normalize-source.sh
           cargo fmt --all
           sh ./scripts/check-posix.sh
           sh ./scripts/create-delivery.sh
