@@ -1,8 +1,21 @@
 # Nexxus — Etapa 04 — Backend X11
 
-**Status:** `EM_VALIDACAO`
+**Status:** `VALIDADO / PUBLICADO / ENTREGUE`
 
-Implementação do primeiro backend gráfico concreto do Nexxus. Esta etapa conecta o `nexxus-wm` ao X11 sem incorporar Workspace Manager, Tiling Engine, UI final, Wayland ou Portals.
+A Etapa 04 entrega o primeiro backend gráfico concreto do Nexxus, conectando o `nexxus-wm` ao X11 com interoperabilidade EWMH/ICCCM e integração ao Session Runtime.
+
+## Evidência final
+
+- repositório canônico: `https://github.com/mintonogueira/nexxus-de`;
+- branch canônica: `main`;
+- PR de publicação: `#3`;
+- commit validado na `main`: `081b152e863f5b91dafd481e864f7fa8658f530a`;
+- workflow final na `main`: `31985046800` — SUCCESS;
+- workflow técnico da branch: `31984901974` — SUCCESS;
+- pacote Arch: `nexxus-backend-x11-0.1.0-1-x86_64.pkg.tar.zst`;
+- pacote Debian: `nexxus-backend-x11_0.1.0_amd64.deb`;
+- snapshot: `Nexxus_Etapa04_Backend_X11_0.1.0.tar.gz`;
+- SHA-256 do snapshot: `f3548511e63348d4ade7590dc07d56f70a978d19d9c595be43376dee27c1b102`.
 
 ## Decisões técnicas vigentes
 
@@ -10,10 +23,10 @@ Implementação do primeiro backend gráfico concreto do Nexxus. Esta etapa cone
 - crate da etapa mantém `#![forbid(unsafe_code)]`;
 - EWMH/ICCCM pertinentes são tratados no adapter X11;
 - as janelas não são reparentadas nem decoradas nesta etapa, preservando CSD/SSD e a fronteira da futura Etapa 09 — Window Chrome;
-- compositor X11 não é ativado: gerenciamento de janelas desta etapa não o exige tecnicamente e efeitos visuais continuam proibidos.
+- compositor X11 não é ativado porque não é tecnicamente necessário ao contrato desta etapa; nenhum efeito visual proibido foi introduzido.
 
-## Estado de engenharia
+## Continuidade
 
-As fontes Rust já foram normalizadas por `rustfmt`; a implementação segue em validação funcional, Clippy, testes X11 reais sob Xvfb e empacotamento nativo Arch/Debian.
+Próxima etapa: **Etapa 05 — Workspace Manager**. O desenvolvimento deve ocorrer em nova conversa.
 
-Branch de implementação: `etapa-04-backend-x11-impl`.
+Handoff: `docs/HANDOFF_FINAL_ETAPA_04.md`.
