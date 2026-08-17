@@ -1,7 +1,7 @@
 # NEXXUS — ETAPA 13 — Desktop Shell
 
 **Versão:** 0.1.0  
-**Status:** VALIDADA / AGUARDANDO PUBLICAÇÃO EM `main`
+**Status:** PUBLICADA EM `main`
 
 Implementação da superfície de desktop do Nexxus para o backend X11 inicial, consumindo os contratos já validados de `nexxus-ui`, Visual Assets, Shortcuts Core e XDG Application Index.
 
@@ -18,9 +18,11 @@ Implementação da superfície de desktop do Nexxus para o backend X11 inicial, 
 - uma única superfície X11 para o desktop, com posicionamento de menu por monitor via RandR;
 - UI exclusiva em Rust por `nexxus-ui`, sem GTK/Qt.
 
-## Validação
+## Validação e publicação
 
 A implementação foi validada em Arch Linux atual e Debian Trixie por CI da própria etapa, incluindo `cargo fmt --check`, `cargo clippy -D warnings`, testes Rust, rustdoc com warnings negados e smoke test X11 em Xvfb. O delivery gera e versiona `Cargo.lock`, snapshot `.tar.gz` e arquivo SHA-256 correspondente.
+
+O PR #15 foi integrado à branch canônica `main`. A CI pós-publicação (`run 32014983509`) foi aprovada em Arch Linux e Debian Trixie.
 
 ## Fronteiras preservadas
 
