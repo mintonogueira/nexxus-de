@@ -1,0 +1,140 @@
+# CI real da Etapa 02 nos dois cenários definidos pela governança de build.
+name: Etapa 02 - Window Manager Core
+
+on:
+  push:
+    branches: [main, etapa-02-window-manager-core]
+    paths:
+      - 'etapas/etapa-02-window-manager-core/**'
+      - 'etapas/etapa-01-core-fundacao/crates/nexxus-core/**'
+      - 'etapas/etapa-01-core-fundacao/crates/nexxus-backend-api/**'
+      - '.github/workflows/etapa-02-window-manager-core.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  debian-trixie:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends sudo git ca-certificates passwd
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/apt-get' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v5
+      - name: Executar wrapper Debian como usuário normal
+        shell: sh
+        run: |
+          chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas/etapa-02-window-manager-core"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-02-window-manager-core' && sh ./scripts/check-posix.sh && sh ./scripts/build-install-debian.sh" > /tmp/nexxus-debian.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-debian.log
+          if [ "$status" -ne 0 ]; then
+            tail -n 80 /tmp/nexxus-debian.log | while IFS= read -r line; do
+              printf '::error title=Nexxus Etapa 02 Debian CI::%s\n' "$line"
+            done
+            exit "$status"
+          fi
+      - name: Publicar normalização rustfmt e Cargo.lock na branch da etapa
+        if: ${{ always() && github.ref_name == 'etapa-02-window-manager-core' }}
+        shell: sh
+        run: |
+          set -eu
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add etapas/etapa-02-window-manager-core/crates etapas/etapa-02-window-manager-core/Cargo.lock 2>/dev/null || true
+          if git diff --cached --quiet; then
+            printf '%s\n' 'fontes/lock já normalizados'
+            exit 0
+          fi
+          git commit -m 'style(etapa-02): aplica rustfmt e versiona Cargo.lock [skip ci-normalize]'
+          git push origin HEAD:etapa-02-window-manager-core
+      - name: Exportar Cargo.lock resolvido
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-02-cargo-lock-debian
+          path: etapas/etapa-02-window-manager-core/Cargo.lock
+          if-no-files-found: error
+
+  archlinux-current:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --needed --noconfirm sudo git ca-certificates
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v5
+      - name: Executar wrapper Arch como usuário normal
+        shell: sh
+        run: |
+          chown -R nexxus-builder:nexxus-builder "$GITHUB_WORKSPACE/etapas/etapa-02-window-manager-core"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$GITHUB_WORKSPACE/etapas/etapa-02-window-manager-core' && sh ./scripts/check-posix.sh && sh ./scripts/build-install-arch.sh" > /tmp/nexxus-arch.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-arch.log
+          if [ "$status" -ne 0 ]; then
+            tail -n 80 /tmp/nexxus-arch.log | while IFS= read -r line; do
+              printf '::error title=Nexxus Etapa 02 Arch CI::%s\n' "$line"
+            done
+            exit "$status"
+          fi
+
+  snapshot-entrega:
+    needs: [debian-trixie, archlinux-current]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Recuperar Cargo.lock validado no Debian
+        uses: actions/download-artifact@v5
+        with:
+          name: etapa-02-cargo-lock-debian
+          path: .validated-lock
+      - name: Gerar e validar snapshot
+        shell: sh
+        run: |
+          set -eu
+          cp .validated-lock/Cargo.lock etapas/etapa-02-window-manager-core/Cargo.lock
+          root='Nexxus_Etapa02_Window_Manager_Core_0.1.0'
+          out="$GITHUB_WORKSPACE/.delivery"
+          stage="$out/$root"
+          mkdir -p "$stage/etapas" "$stage/.github/workflows"
+          cp -a etapas/etapa-02-window-manager-core "$stage/etapas/"
+          cp .github/workflows/etapa-02-window-manager-core.yml "$stage/.github/workflows/"
+          cp LICENSE "$stage/"
+          printf '%s\n' \
+            "SNAPSHOT_SOURCE_COMMIT=$GITHUB_SHA" \
+            "GITHUB_RUN_ID=$GITHUB_RUN_ID" \
+            'VERSION=0.1.0' \
+            'STAGE=Etapa 02 - Window Manager Core' \
+            > "$stage/SNAPSHOT_BUILD_INFO.txt"
+          tar -C "$out" -czf "$out/Nexxus_Etapa02_Window_Manager_Core_0.1.0.tar.gz" "$root"
+          tar -tzf "$out/Nexxus_Etapa02_Window_Manager_Core_0.1.0.tar.gz" > "$out/contents.txt"
+          if grep -Eq '(^/|(^|/)\.\.(/|$))' "$out/contents.txt"; then
+            printf '%s\n' 'erro: caminho inseguro detectado no snapshot' >&2
+            exit 1
+          fi
+          sha256sum "$out/Nexxus_Etapa02_Window_Manager_Core_0.1.0.tar.gz" > "$out/Nexxus_Etapa02_Window_Manager_Core_0.1.0.tar.gz.sha256"
+          cat "$out/Nexxus_Etapa02_Window_Manager_Core_0.1.0.tar.gz.sha256"
+      - name: Exportar snapshot validado
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nexxus_Etapa02_Window_Manager_Core_0.1.0
+          path: |
+            .delivery/Nexxus_Etapa02_Window_Manager_Core_0.1.0.tar.gz
+            .delivery/Nexxus_Etapa02_Window_Manager_Core_0.1.0.tar.gz.sha256
+            .delivery/contents.txt
+          if-no-files-found: error
