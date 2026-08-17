@@ -1,0 +1,16 @@
+[workspace]
+resolver = "3"
+members = ["crates/nexxus-tiling"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "GPL-3.0-only"
+repository = "https://github.com/mintonogueira/nexxus-de"
+publish = false
+
+[workspace.dependencies]
+nexxus-wm = { path = "../etapa-02-window-manager-core/crates/nexxus-wm" }
+nexxus-workspaces = { path = "../etapa-05-workspace-manager/crates/nexxus-workspaces" }
+thiserror = "2.0"
