@@ -2,8 +2,13 @@
 
 use crate::runtime::inspect_output;
 use crate::{X11BackendError, X11Service};
-use nexxus_backend_api::{BackendCapabilities, BackendError, BackendKind, GraphicsBackend, OutputInfo};
-use nexxus_core::{ApiVersion, CapabilityId, IsolationMode, ModuleContext, ModuleDescriptor, ModuleFailure, ModuleId, NexxusModule};
+use nexxus_backend_api::{
+    BackendCapabilities, BackendError, BackendKind, GraphicsBackend, OutputInfo,
+};
+use nexxus_core::{
+    ApiVersion, CapabilityId, IsolationMode, ModuleContext, ModuleDescriptor, ModuleFailure,
+    ModuleId, NexxusModule,
+};
 
 const GRAPHICS_CAPABILITY: &str = "graphics.backend";
 
@@ -17,7 +22,9 @@ pub fn module_descriptor() -> ModuleDescriptor {
         name: "Nexxus X11 Backend".into(),
         version: env!("CARGO_PKG_VERSION").into(),
         required_core_api: ApiVersion::new(1, 0),
-        provides: vec![CapabilityId::new(GRAPHICS_CAPABILITY).expect("canonical capability is valid")],
+        provides: vec![
+            CapabilityId::new(GRAPHICS_CAPABILITY).expect("canonical capability is valid"),
+        ],
         requires: Vec::new(),
         optional: false,
         isolation: IsolationMode::InProcess,
@@ -64,24 +71,33 @@ impl X11BackendModule {
 }
 
 impl NexxusModule for X11BackendModule {
-    fn descriptor(&self) -> &ModuleDescriptor { &self.descriptor }
+    fn descriptor(&self) -> &ModuleDescriptor {
+        &self.descriptor
+    }
 
     fn initialize(&mut self, _context: &ModuleContext) -> Result<(), ModuleFailure> {
-        self.preflight_output = Some(inspect_output(self.display.as_deref()).map_err(|error| ModuleFailure::new(error.to_string()))?);
+        self.preflight_output = Some(
+            inspect_output(self.display.as_deref())
+                .map_err(|error| ModuleFailure::new(error.to_string()))?,
+        );
         Ok(())
     }
 
     fn start(&mut self, _context: &ModuleContext) -> Result<(), ModuleFailure> {
-        self.start_service().map_err(|error| ModuleFailure::new(error.to_string()))
+        self.start_service()
+            .map_err(|error| ModuleFailure::new(error.to_string()))
     }
 
     fn stop(&mut self, _context: &ModuleContext) -> Result<(), ModuleFailure> {
-        self.stop_service().map_err(|error| ModuleFailure::new(error.to_string()))
+        self.stop_service()
+            .map_err(|error| ModuleFailure::new(error.to_string()))
     }
 }
 
 impl GraphicsBackend for X11BackendModule {
-    fn kind(&self) -> BackendKind { BackendKind::X11 }
+    fn kind(&self) -> BackendKind {
+        BackendKind::X11
+    }
 
     fn capabilities(&self) -> BackendCapabilities {
         BackendCapabilities {
@@ -106,7 +122,9 @@ impl GraphicsBackend for X11BackendModule {
         if let Some(output) = &self.preflight_output {
             return Ok(vec![output.clone()]);
         }
-        inspect_output(self.display.as_deref()).map(|output| vec![output]).map_err(to_backend_error)
+        inspect_output(self.display.as_deref())
+            .map(|output| vec![output])
+            .map_err(to_backend_error)
     }
 }
 
@@ -125,6 +143,11 @@ mod tests {
     fn descriptor_matches_session_runtime_contract() {
         let descriptor = module_descriptor();
         assert_eq!(descriptor.id.as_str(), "nexxus-backend-x11");
-        assert!(descriptor.provides.iter().any(|capability| capability.as_str() == GRAPHICS_CAPABILITY));
+        assert!(
+            descriptor
+                .provides
+                .iter()
+                .any(|capability| capability.as_str() == GRAPHICS_CAPABILITY)
+        );
     }
 }

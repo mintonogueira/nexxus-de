@@ -45,13 +45,32 @@ impl X11Controller {
         }
     }
 
-    pub fn focus(&self, id: WindowId) -> Result<(), X11BackendError> { self.unit(Action::Focus(id)) }
-    pub fn move_window(&self, id: WindowId, x: i32, y: i32) -> Result<(), X11BackendError> { self.unit(Action::Move(id, x, y)) }
-    pub fn resize_window(&self, id: WindowId, width: u32, height: u32) -> Result<(), X11BackendError> { self.unit(Action::Resize(id, width, height)) }
-    pub fn maximize(&self, id: WindowId) -> Result<(), X11BackendError> { self.unit(Action::Maximize(id)) }
-    pub fn restore(&self, id: WindowId) -> Result<(), X11BackendError> { self.unit(Action::Restore(id)) }
-    pub fn fullscreen(&self, id: WindowId, enabled: bool) -> Result<(), X11BackendError> { self.unit(Action::Fullscreen(id, enabled)) }
-    pub fn close(&self, id: WindowId) -> Result<(), X11BackendError> { self.unit(Action::Close(id)) }
+    pub fn focus(&self, id: WindowId) -> Result<(), X11BackendError> {
+        self.unit(Action::Focus(id))
+    }
+    pub fn move_window(&self, id: WindowId, x: i32, y: i32) -> Result<(), X11BackendError> {
+        self.unit(Action::Move(id, x, y))
+    }
+    pub fn resize_window(
+        &self,
+        id: WindowId,
+        width: u32,
+        height: u32,
+    ) -> Result<(), X11BackendError> {
+        self.unit(Action::Resize(id, width, height))
+    }
+    pub fn maximize(&self, id: WindowId) -> Result<(), X11BackendError> {
+        self.unit(Action::Maximize(id))
+    }
+    pub fn restore(&self, id: WindowId) -> Result<(), X11BackendError> {
+        self.unit(Action::Restore(id))
+    }
+    pub fn fullscreen(&self, id: WindowId, enabled: bool) -> Result<(), X11BackendError> {
+        self.unit(Action::Fullscreen(id, enabled))
+    }
+    pub fn close(&self, id: WindowId) -> Result<(), X11BackendError> {
+        self.unit(Action::Close(id))
+    }
 
     fn unit(&self, action: Action) -> Result<(), X11BackendError> {
         match self.call(action)? {
@@ -62,8 +81,12 @@ impl X11Controller {
 
     fn call(&self, action: Action) -> Result<Response, X11BackendError> {
         let (reply, receiver) = mpsc::channel();
-        self.sender.send(Control { action, reply }).map_err(|_| X11BackendError::WorkerStopped)?;
-        receiver.recv().map_err(|_| X11BackendError::WorkerStopped)?
+        self.sender
+            .send(Control { action, reply })
+            .map_err(|_| X11BackendError::WorkerStopped)?;
+        receiver
+            .recv()
+            .map_err(|_| X11BackendError::WorkerStopped)?
             .map_err(X11BackendError::Operation)
     }
 }
@@ -85,7 +108,10 @@ impl X11Service {
             .spawn(move || worker_main(display, control_rx, ready_tx))
             .map_err(operation_error)?;
 
-        let output = match ready_rx.recv().map_err(|_| X11BackendError::WorkerStopped)? {
+        let output = match ready_rx
+            .recv()
+            .map_err(|_| X11BackendError::WorkerStopped)?
+        {
             Ok(output) => output,
             Err(message) => {
                 let _ = worker.join();
@@ -99,8 +125,12 @@ impl X11Service {
         })
     }
 
-    pub fn controller(&self) -> X11Controller { self.controller.clone() }
-    pub fn output(&self) -> OutputInfo { self.output.clone() }
+    pub fn controller(&self) -> X11Controller {
+        self.controller.clone()
+    }
+    pub fn output(&self) -> OutputInfo {
+        self.output.clone()
+    }
 
     pub fn stop(&mut self) -> Result<(), X11BackendError> {
         if self.worker.is_none() {
@@ -108,7 +138,9 @@ impl X11Service {
         }
         self.controller.unit(Action::Stop)?;
         if let Some(worker) = self.worker.take() {
-            worker.join().map_err(|_| X11BackendError::Operation("X11 worker panicked".into()))?;
+            worker
+                .join()
+                .map_err(|_| X11BackendError::Operation("X11 worker panicked".into()))?;
         }
         Ok(())
     }
@@ -152,7 +184,9 @@ fn worker_main(
         }
         while let Ok(control) = controls.try_recv() {
             let (result, stop) = execute_control(&mut runtime, control.action);
-            let _ = control.reply.send(result.map_err(|error| error.to_string()));
+            let _ = control
+                .reply
+                .send(result.map_err(|error| error.to_string()));
             if stop {
                 running = false;
                 break;
@@ -165,12 +199,17 @@ fn worker_main(
     let _ = runtime.shutdown();
 }
 
-fn execute_control(runtime: &mut X11Runtime, action: Action) -> (Result<Response, X11BackendError>, bool) {
+fn execute_control(
+    runtime: &mut X11Runtime,
+    action: Action,
+) -> (Result<Response, X11BackendError>, bool) {
     let result = match action {
         Action::Snapshot => Ok(Response::Windows(runtime.windows())),
         Action::Focus(id) => runtime.focus(id).map(|_| Response::Unit),
         Action::Move(id, x, y) => runtime.move_window(id, x, y).map(|_| Response::Unit),
-        Action::Resize(id, width, height) => runtime.resize_window(id, width, height).map(|_| Response::Unit),
+        Action::Resize(id, width, height) => runtime
+            .resize_window(id, width, height)
+            .map(|_| Response::Unit),
         Action::Maximize(id) => runtime.maximize(id).map(|_| Response::Unit),
         Action::Restore(id) => runtime.restore(id).map(|_| Response::Unit),
         Action::Fullscreen(id, enabled) => runtime.fullscreen(id, enabled).map(|_| Response::Unit),

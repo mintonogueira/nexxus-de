@@ -8,7 +8,10 @@
 use crate::atoms::Atoms;
 use crate::{X11BackendError, operation_error};
 use nexxus_backend_api::{OutputId, OutputInfo};
-use nexxus_wm::{Geometry, PresentationState, SizeConstraints, Window, WindowId, WindowManager, WindowMetadata, WmCommand, WmEvent};
+use nexxus_wm::{
+    Geometry, PresentationState, SizeConstraints, Window, WindowId, WindowManager, WindowMetadata,
+    WmCommand, WmEvent,
+};
 use std::collections::BTreeSet;
 use x11rb::COPY_DEPTH_FROM_PARENT;
 use x11rb::CURRENT_TIME;
@@ -17,8 +20,8 @@ use x11rb::properties::{WmClass, WmSizeHints};
 use x11rb::protocol::Event;
 use x11rb::protocol::xproto::{
     Atom, AtomEnum, ChangeWindowAttributesAux, ClientMessageEvent, ConfigureWindowAux,
-    ConnectionExt as _, CreateWindowAux, EventMask, InputFocus, MapState, PropMode,
-    StackMode, WindowClass,
+    ConnectionExt as _, CreateWindowAux, EventMask, InputFocus, MapState, PropMode, StackMode,
+    WindowClass,
 };
 use x11rb::rust_connection::RustConnection;
 use x11rb::wrapper::ConnectionExt as _;
@@ -130,12 +133,23 @@ impl X11Runtime {
     }
 
     pub fn move_window(&mut self, id: WindowId, x: i32, y: i32) -> Result<(), X11BackendError> {
-        let command = self.manager.request_move(id, x, y).map_err(operation_error)?;
+        let command = self
+            .manager
+            .request_move(id, x, y)
+            .map_err(operation_error)?;
         self.execute_command(&command)
     }
 
-    pub fn resize_window(&mut self, id: WindowId, width: u32, height: u32) -> Result<(), X11BackendError> {
-        let command = self.manager.request_resize(id, width, height).map_err(operation_error)?;
+    pub fn resize_window(
+        &mut self,
+        id: WindowId,
+        width: u32,
+        height: u32,
+    ) -> Result<(), X11BackendError> {
+        let command = self
+            .manager
+            .request_resize(id, width, height)
+            .map_err(operation_error)?;
         self.execute_command(&command)
     }
 
@@ -150,7 +164,10 @@ impl X11Runtime {
     }
 
     pub fn fullscreen(&mut self, id: WindowId, enabled: bool) -> Result<(), X11BackendError> {
-        let command = self.manager.set_fullscreen(id, enabled).map_err(operation_error)?;
+        let command = self
+            .manager
+            .set_fullscreen(id, enabled)
+            .map_err(operation_error)?;
         self.execute_command(&command)
     }
 
@@ -162,48 +179,66 @@ impl X11Runtime {
     /// Releases properties created by this WM and destroys only the private
     /// supporting window. Client windows are never destroyed during shutdown.
     pub fn shutdown(&mut self) -> Result<(), X11BackendError> {
-        let _ = self.conn.delete_property(self.root, self.atoms.net_supporting_wm_check);
-        let _ = self.conn.delete_property(self.root, self.atoms.net_active_window);
-        let _ = self.conn.delete_property(self.root, self.atoms.net_client_list);
-        let _ = self.conn.delete_property(self.root, self.atoms.net_client_list_stacking);
+        let _ = self
+            .conn
+            .delete_property(self.root, self.atoms.net_supporting_wm_check);
+        let _ = self
+            .conn
+            .delete_property(self.root, self.atoms.net_active_window);
+        let _ = self
+            .conn
+            .delete_property(self.root, self.atoms.net_client_list);
+        let _ = self
+            .conn
+            .delete_property(self.root, self.atoms.net_client_list_stacking);
         let _ = self.conn.destroy_window(self.support_window);
         self.conn.flush().map_err(operation_error)
     }
 
     fn publish_wm_identity(&self) -> Result<(), X11BackendError> {
-        self.conn.change_property32(
-            PropMode::REPLACE,
-            self.root,
-            self.atoms.net_supporting_wm_check,
-            AtomEnum::WINDOW,
-            &[self.support_window],
-        ).map_err(operation_error)?;
-        self.conn.change_property32(
-            PropMode::REPLACE,
-            self.support_window,
-            self.atoms.net_supporting_wm_check,
-            AtomEnum::WINDOW,
-            &[self.support_window],
-        ).map_err(operation_error)?;
-        self.conn.change_property8(
-            PropMode::REPLACE,
-            self.support_window,
-            self.atoms.net_wm_name,
-            self.atoms.utf8_string,
-            WM_NAME,
-        ).map_err(operation_error)?;
-        self.conn.change_property32(
-            PropMode::REPLACE,
-            self.root,
-            self.atoms.net_supported,
-            AtomEnum::ATOM,
-            &self.atoms.supported(),
-        ).map_err(operation_error)?;
+        self.conn
+            .change_property32(
+                PropMode::REPLACE,
+                self.root,
+                self.atoms.net_supporting_wm_check,
+                AtomEnum::WINDOW,
+                &[self.support_window],
+            )
+            .map_err(operation_error)?;
+        self.conn
+            .change_property32(
+                PropMode::REPLACE,
+                self.support_window,
+                self.atoms.net_supporting_wm_check,
+                AtomEnum::WINDOW,
+                &[self.support_window],
+            )
+            .map_err(operation_error)?;
+        self.conn
+            .change_property8(
+                PropMode::REPLACE,
+                self.support_window,
+                self.atoms.net_wm_name,
+                self.atoms.utf8_string,
+                WM_NAME,
+            )
+            .map_err(operation_error)?;
+        self.conn
+            .change_property32(
+                PropMode::REPLACE,
+                self.root,
+                self.atoms.net_supported,
+                AtomEnum::ATOM,
+                &self.atoms.supported(),
+            )
+            .map_err(operation_error)?;
         Ok(())
     }
 
     fn scan_existing_windows(&mut self) -> Result<(), X11BackendError> {
-        let children = self.conn.query_tree(self.root)
+        let children = self
+            .conn
+            .query_tree(self.root)
             .map_err(operation_error)?
             .reply()
             .map_err(operation_error)?
@@ -212,7 +247,12 @@ impl X11Runtime {
             if window == self.support_window {
                 continue;
             }
-            let attributes = match self.conn.get_window_attributes(window).map_err(operation_error)?.reply() {
+            let attributes = match self
+                .conn
+                .get_window_attributes(window)
+                .map_err(operation_error)?
+                .reply()
+            {
                 Ok(attributes) => attributes,
                 Err(_) => continue,
             };
@@ -236,7 +276,9 @@ impl X11Runtime {
                 let aux = ConfigureWindowAux::from_configure_request(&event)
                     .sibling(None)
                     .stack_mode(None);
-                self.conn.configure_window(event.window, &aux).map_err(operation_error)?;
+                self.conn
+                    .configure_window(event.window, &aux)
+                    .map_err(operation_error)?;
             }
             Event::ConfigureNotify(event) => {
                 if let Some(id) = self.known_id(event.window) {
@@ -245,7 +287,8 @@ impl X11Runtime {
                         i32::from(event.y),
                         u32::from(event.width),
                         u32::from(event.height),
-                    ).map_err(operation_error)?;
+                    )
+                    .map_err(operation_error)?;
                     self.apply(WmEvent::WindowGeometryChanged { id, geometry })?;
                 }
             }
@@ -271,7 +314,9 @@ impl X11Runtime {
         if window == self.support_window {
             return Ok(());
         }
-        let attributes = self.conn.get_window_attributes(window)
+        let attributes = self
+            .conn
+            .get_window_attributes(window)
             .map_err(operation_error)?
             .reply()
             .map_err(operation_error)?;
@@ -284,7 +329,9 @@ impl X11Runtime {
 
         let id = window_id(window)?;
         if !self.managed.contains(&id) {
-            let geometry_reply = self.conn.get_geometry(window)
+            let geometry_reply = self
+                .conn
+                .get_geometry(window)
                 .map_err(operation_error)?
                 .reply()
                 .map_err(operation_error)?;
@@ -293,17 +340,27 @@ impl X11Runtime {
                 i32::from(geometry_reply.y),
                 u32::from(geometry_reply.width),
                 u32::from(geometry_reply.height),
-            ).map_err(operation_error)?;
+            )
+            .map_err(operation_error)?;
             let constraints = self.read_constraints(window)?;
             let metadata = self.read_metadata(window)?;
-            self.apply(WmEvent::WindowCreated { id, geometry, constraints, metadata })?;
+            self.apply(WmEvent::WindowCreated {
+                id,
+                geometry,
+                constraints,
+                metadata,
+            })?;
             self.managed.insert(id);
-            self.conn.change_window_attributes(
-                window,
-                &ChangeWindowAttributesAux::new().event_mask(
-                    EventMask::PROPERTY_CHANGE | EventMask::FOCUS_CHANGE | EventMask::STRUCTURE_NOTIFY,
-                ),
-            ).map_err(operation_error)?;
+            self.conn
+                .change_window_attributes(
+                    window,
+                    &ChangeWindowAttributesAux::new().event_mask(
+                        EventMask::PROPERTY_CHANGE
+                            | EventMask::FOCUS_CHANGE
+                            | EventMask::STRUCTURE_NOTIFY,
+                    ),
+                )
+                .map_err(operation_error)?;
         }
         if map {
             self.conn.map_window(window).map_err(operation_error)?;
@@ -340,7 +397,9 @@ impl X11Runtime {
         let first = data[1];
         let second = data[2];
         let state = self.manager.window(id).map(|window| window.presentation);
-        if first == self.atoms.net_wm_state_fullscreen || second == self.atoms.net_wm_state_fullscreen {
+        if first == self.atoms.net_wm_state_fullscreen
+            || second == self.atoms.net_wm_state_fullscreen
+        {
             let current = state == Some(PresentationState::Fullscreen);
             let enabled = requested_state(action, current);
             if enabled != current {
@@ -368,39 +427,100 @@ impl X11Runtime {
         match *command {
             WmCommand::RequestFocus { window } => {
                 let xid = xid(window)?;
-                self.conn.set_input_focus(InputFocus::PARENT, xid, CURRENT_TIME).map_err(operation_error)?;
-                self.conn.configure_window(xid, &ConfigureWindowAux::new().stack_mode(StackMode::ABOVE)).map_err(operation_error)?;
+                self.conn
+                    .set_input_focus(InputFocus::PARENT, xid, CURRENT_TIME)
+                    .map_err(operation_error)?;
+                self.conn
+                    .configure_window(xid, &ConfigureWindowAux::new().stack_mode(StackMode::ABOVE))
+                    .map_err(operation_error)?;
                 self.send_take_focus_if_supported(xid)?;
                 self.publish_active(Some(window))?;
             }
             WmCommand::RequestMove { window, x, y } => {
-                self.conn.configure_window(xid(window)?, &ConfigureWindowAux::new().x(x).y(y)).map_err(operation_error)?;
+                self.conn
+                    .configure_window(xid(window)?, &ConfigureWindowAux::new().x(x).y(y))
+                    .map_err(operation_error)?;
             }
-            WmCommand::RequestResize { window, width, height } => {
-                self.conn.configure_window(xid(window)?, &ConfigureWindowAux::new().width(width).height(height)).map_err(operation_error)?;
+            WmCommand::RequestResize {
+                window,
+                width,
+                height,
+            } => {
+                self.conn
+                    .configure_window(
+                        xid(window)?,
+                        &ConfigureWindowAux::new().width(width).height(height),
+                    )
+                    .map_err(operation_error)?;
             }
             WmCommand::RequestMaximize { window } => {
                 let xid = xid(window)?;
-                self.conn.configure_window(xid, &ConfigureWindowAux::new().x(0).y(0).width(self.width).height(self.height)).map_err(operation_error)?;
-                self.set_state(xid, &[self.atoms.net_wm_state_maximized_vert, self.atoms.net_wm_state_maximized_horz])?;
+                self.conn
+                    .configure_window(
+                        xid,
+                        &ConfigureWindowAux::new()
+                            .x(0)
+                            .y(0)
+                            .width(self.width)
+                            .height(self.height),
+                    )
+                    .map_err(operation_error)?;
+                self.set_state(
+                    xid,
+                    &[
+                        self.atoms.net_wm_state_maximized_vert,
+                        self.atoms.net_wm_state_maximized_horz,
+                    ],
+                )?;
             }
             WmCommand::RequestRestore { window } => {
-                let snapshot = self.manager.window(window).ok_or_else(|| X11BackendError::Operation("restore target disappeared".into()))?;
+                let snapshot = self.manager.window(window).ok_or_else(|| {
+                    X11BackendError::Operation("restore target disappeared".into())
+                })?;
                 let geometry = snapshot.geometry;
                 let presentation = snapshot.presentation;
                 let xid = xid(window)?;
-                self.conn.configure_window(xid, &ConfigureWindowAux::new().x(geometry.x).y(geometry.y).width(geometry.width).height(geometry.height)).map_err(operation_error)?;
+                self.conn
+                    .configure_window(
+                        xid,
+                        &ConfigureWindowAux::new()
+                            .x(geometry.x)
+                            .y(geometry.y)
+                            .width(geometry.width)
+                            .height(geometry.height),
+                    )
+                    .map_err(operation_error)?;
                 self.publish_presentation_state(xid, presentation)?;
             }
             WmCommand::RequestFullscreen { window, enabled } => {
                 let xid = xid(window)?;
                 if enabled {
-                    self.conn.configure_window(xid, &ConfigureWindowAux::new().x(0).y(0).width(self.width).height(self.height)).map_err(operation_error)?;
+                    self.conn
+                        .configure_window(
+                            xid,
+                            &ConfigureWindowAux::new()
+                                .x(0)
+                                .y(0)
+                                .width(self.width)
+                                .height(self.height),
+                        )
+                        .map_err(operation_error)?;
                     self.set_state(xid, &[self.atoms.net_wm_state_fullscreen])?;
                 } else {
-                    let snapshot = self.manager.window(window).ok_or_else(|| X11BackendError::Operation("fullscreen target disappeared".into()))?;
+                    let snapshot = self.manager.window(window).ok_or_else(|| {
+                        X11BackendError::Operation("fullscreen target disappeared".into())
+                    })?;
                     let geometry = snapshot.geometry;
-                    self.conn.configure_window(xid, &ConfigureWindowAux::new().x(geometry.x).y(geometry.y).width(geometry.width).height(geometry.height)).map_err(operation_error)?;
+                    self.conn
+                        .configure_window(
+                            xid,
+                            &ConfigureWindowAux::new()
+                                .x(geometry.x)
+                                .y(geometry.y)
+                                .width(geometry.width)
+                                .height(geometry.height),
+                        )
+                        .map_err(operation_error)?;
                     self.publish_presentation_state(xid, snapshot.presentation)?;
                 }
             }
@@ -417,7 +537,9 @@ impl X11Runtime {
                 self.atoms.wm_protocols,
                 [self.atoms.wm_delete_window, CURRENT_TIME, 0, 0, 0],
             );
-            self.conn.send_event(false, window, EventMask::NO_EVENT, event).map_err(operation_error)?;
+            self.conn
+                .send_event(false, window, EventMask::NO_EVENT, event)
+                .map_err(operation_error)?;
         } else {
             self.conn.kill_client(window).map_err(operation_error)?;
         }
@@ -432,31 +554,55 @@ impl X11Runtime {
                 self.atoms.wm_protocols,
                 [self.atoms.wm_take_focus, CURRENT_TIME, 0, 0, 0],
             );
-            self.conn.send_event(false, window, EventMask::NO_EVENT, event).map_err(operation_error)?;
+            self.conn
+                .send_event(false, window, EventMask::NO_EVENT, event)
+                .map_err(operation_error)?;
         }
         Ok(())
     }
 
     fn supports_protocol(&self, window: u32, protocol: Atom) -> Result<bool, X11BackendError> {
-        let reply = self.conn.get_property(
-            false,
-            window,
-            self.atoms.wm_protocols,
-            AtomEnum::ATOM,
-            0,
-            64,
-        ).map_err(operation_error)?.reply().map_err(operation_error)?;
-        Ok(reply.value32().is_some_and(|mut atoms| atoms.any(|atom| atom == protocol)))
+        let reply = self
+            .conn
+            .get_property(
+                false,
+                window,
+                self.atoms.wm_protocols,
+                AtomEnum::ATOM,
+                0,
+                64,
+            )
+            .map_err(operation_error)?
+            .reply()
+            .map_err(operation_error)?;
+        Ok(reply
+            .value32()
+            .is_some_and(|mut atoms| atoms.any(|atom| atom == protocol)))
     }
 
     fn read_metadata(&self, window: u32) -> Result<WindowMetadata, X11BackendError> {
-        let net_title = self.conn.get_property(false, window, self.atoms.net_wm_name, self.atoms.utf8_string, 0, 4096)
-            .map_err(operation_error)?.reply().map_err(operation_error)?;
+        let net_title = self
+            .conn
+            .get_property(
+                false,
+                window,
+                self.atoms.net_wm_name,
+                self.atoms.utf8_string,
+                0,
+                4096,
+            )
+            .map_err(operation_error)?
+            .reply()
+            .map_err(operation_error)?;
         let title = if !net_title.value.is_empty() {
             String::from_utf8_lossy(&net_title.value).into_owned()
         } else {
-            let legacy = self.conn.get_property(false, window, AtomEnum::WM_NAME, AtomEnum::STRING, 0, 4096)
-                .map_err(operation_error)?.reply().map_err(operation_error)?;
+            let legacy = self
+                .conn
+                .get_property(false, window, AtomEnum::WM_NAME, AtomEnum::STRING, 0, 4096)
+                .map_err(operation_error)?
+                .reply()
+                .map_err(operation_error)?;
             String::from_utf8_lossy(&legacy.value).into_owned()
         };
         let application_id = WmClass::get(&self.conn, window)
@@ -464,10 +610,17 @@ impl X11Runtime {
             .reply()
             .map_err(operation_error)?
             .and_then(|class| {
-                let preferred = if class.class().is_empty() { class.instance() } else { class.class() };
+                let preferred = if class.class().is_empty() {
+                    class.instance()
+                } else {
+                    class.class()
+                };
                 (!preferred.is_empty()).then(|| String::from_utf8_lossy(preferred).into_owned())
             });
-        Ok(WindowMetadata { title, application_id })
+        Ok(WindowMetadata {
+            title,
+            application_id,
+        })
     }
 
     fn read_constraints(&self, window: u32) -> Result<SizeConstraints, X11BackendError> {
@@ -478,39 +631,101 @@ impl X11Runtime {
         let Some(hints) = hints else {
             return Ok(SizeConstraints::default());
         };
-        let (min_width, min_height) = hints.min_size
+        let (min_width, min_height) = hints
+            .min_size
             .map(|(width, height)| (positive_dimension(width), positive_dimension(height)))
             .unwrap_or((1, 1));
-        let max_width = hints.max_size.and_then(|(width, _)| optional_dimension(width));
-        let max_height = hints.max_size.and_then(|(_, height)| optional_dimension(height));
-        let constraints = SizeConstraints { min_width, min_height, max_width, max_height };
+        let max_width = hints
+            .max_size
+            .and_then(|(width, _)| optional_dimension(width));
+        let max_height = hints
+            .max_size
+            .and_then(|(_, height)| optional_dimension(height));
+        let constraints = SizeConstraints {
+            min_width,
+            min_height,
+            max_width,
+            max_height,
+        };
         constraints.validate().map_err(operation_error)?;
         Ok(constraints)
     }
 
     fn publish_client_list(&self) -> Result<(), X11BackendError> {
-        let clients: Vec<u32> = self.managed.iter().copied().map(xid).collect::<Result<_, _>>()?;
-        self.conn.change_property32(PropMode::REPLACE, self.root, self.atoms.net_client_list, AtomEnum::WINDOW, &clients).map_err(operation_error)?;
-        self.conn.change_property32(PropMode::REPLACE, self.root, self.atoms.net_client_list_stacking, AtomEnum::WINDOW, &clients).map_err(operation_error)?;
+        let clients: Vec<u32> = self
+            .managed
+            .iter()
+            .copied()
+            .map(xid)
+            .collect::<Result<_, _>>()?;
+        self.conn
+            .change_property32(
+                PropMode::REPLACE,
+                self.root,
+                self.atoms.net_client_list,
+                AtomEnum::WINDOW,
+                &clients,
+            )
+            .map_err(operation_error)?;
+        self.conn
+            .change_property32(
+                PropMode::REPLACE,
+                self.root,
+                self.atoms.net_client_list_stacking,
+                AtomEnum::WINDOW,
+                &clients,
+            )
+            .map_err(operation_error)?;
         Ok(())
     }
 
     fn publish_active(&self, id: Option<WindowId>) -> Result<(), X11BackendError> {
-        let value = match id { Some(id) => xid(id)?, None => 0 };
-        self.conn.change_property32(PropMode::REPLACE, self.root, self.atoms.net_active_window, AtomEnum::WINDOW, &[value]).map_err(operation_error)?;
+        let value = match id {
+            Some(id) => xid(id)?,
+            None => 0,
+        };
+        self.conn
+            .change_property32(
+                PropMode::REPLACE,
+                self.root,
+                self.atoms.net_active_window,
+                AtomEnum::WINDOW,
+                &[value],
+            )
+            .map_err(operation_error)?;
         Ok(())
     }
 
-    fn publish_presentation_state(&self, window: u32, state: PresentationState) -> Result<(), X11BackendError> {
+    fn publish_presentation_state(
+        &self,
+        window: u32,
+        state: PresentationState,
+    ) -> Result<(), X11BackendError> {
         match state {
             PresentationState::Normal => self.set_state(window, &[]),
-            PresentationState::Maximized => self.set_state(window, &[self.atoms.net_wm_state_maximized_vert, self.atoms.net_wm_state_maximized_horz]),
-            PresentationState::Fullscreen => self.set_state(window, &[self.atoms.net_wm_state_fullscreen]),
+            PresentationState::Maximized => self.set_state(
+                window,
+                &[
+                    self.atoms.net_wm_state_maximized_vert,
+                    self.atoms.net_wm_state_maximized_horz,
+                ],
+            ),
+            PresentationState::Fullscreen => {
+                self.set_state(window, &[self.atoms.net_wm_state_fullscreen])
+            }
         }
     }
 
     fn set_state(&self, window: u32, states: &[Atom]) -> Result<(), X11BackendError> {
-        self.conn.change_property32(PropMode::REPLACE, window, self.atoms.net_wm_state, AtomEnum::ATOM, states).map_err(operation_error)?;
+        self.conn
+            .change_property32(
+                PropMode::REPLACE,
+                window,
+                self.atoms.net_wm_state,
+                AtomEnum::ATOM,
+                states,
+            )
+            .map_err(operation_error)?;
         Ok(())
     }
 
@@ -520,7 +735,10 @@ impl X11Runtime {
     }
 
     fn apply(&mut self, event: WmEvent) -> Result<(), X11BackendError> {
-        self.manager.apply_event(event).map(|_| ()).map_err(operation_error)
+        self.manager
+            .apply_event(event)
+            .map(|_| ())
+            .map_err(operation_error)
     }
 }
 
@@ -534,7 +752,10 @@ fn requested_state(action: u32, current: bool) -> bool {
 }
 
 fn positive_dimension(value: i32) -> u32 {
-    u32::try_from(value).ok().filter(|value| *value > 0).unwrap_or(1)
+    u32::try_from(value)
+        .ok()
+        .filter(|value| *value > 0)
+        .unwrap_or(1)
 }
 
 fn optional_dimension(value: i32) -> Option<u32> {
@@ -552,9 +773,12 @@ fn xid(id: WindowId) -> Result<u32, X11BackendError> {
 /// Opens a display without claiming the WM role. Used by preflight/output
 /// inspection so configuration checks never disturb the active window manager.
 pub(crate) fn inspect_output(display: Option<&str>) -> Result<OutputInfo, X11BackendError> {
-    let (conn, screen_num) = x11rb::connect(display)
-        .map_err(|error| X11BackendError::Unavailable(error.to_string()))?;
-    let screen = conn.setup().roots.get(screen_num).ok_or_else(|| X11BackendError::Unavailable("selected X11 screen does not exist".into()))?;
+    let (conn, screen_num) =
+        x11rb::connect(display).map_err(|error| X11BackendError::Unavailable(error.to_string()))?;
+    let screen =
+        conn.setup().roots.get(screen_num).ok_or_else(|| {
+            X11BackendError::Unavailable("selected X11 screen does not exist".into())
+        })?;
     Ok(OutputInfo {
         id: OutputId::new(format!("x11-screen-{screen_num}"))
             .map_err(|error| X11BackendError::Operation(error.to_owned()))?,

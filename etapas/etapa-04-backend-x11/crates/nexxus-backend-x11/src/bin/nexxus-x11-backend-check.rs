@@ -25,8 +25,12 @@ fn run() -> Result<(), String> {
         match arg.as_str() {
             "--check" => {}
             "--serve-seconds" => {
-                let value = args.next().ok_or_else(|| "--serve-seconds requires an integer".to_owned())?;
-                serve_seconds = value.parse().map_err(|_| "invalid --serve-seconds value".to_owned())?;
+                let value = args
+                    .next()
+                    .ok_or_else(|| "--serve-seconds requires an integer".to_owned())?;
+                serve_seconds = value
+                    .parse()
+                    .map_err(|_| "invalid --serve-seconds value".to_owned())?;
             }
             "--help" | "-h" => {
                 println!("usage: nexxus-x11-backend-check [--check] [--serve-seconds N]");
