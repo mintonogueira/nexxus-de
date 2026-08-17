@@ -70,10 +70,10 @@ pub fn wallpaper(name: &str) -> Option<&'static WallpaperSpec> {
 }
 
 /// Preserves a declared external icon and falls back only when it is absent.
-pub fn resolve_application_icon<'a>(
-    declared: Option<&'a str>,
+pub fn resolve_application_icon(
+    declared: Option<&str>,
     category: AppCategory,
-) -> ApplicationIcon<'a> {
+) -> ApplicationIcon<'_> {
     if let Some(name) = declared.map(str::trim).filter(|name| !name.is_empty()) {
         return ApplicationIcon::External(name);
     }
