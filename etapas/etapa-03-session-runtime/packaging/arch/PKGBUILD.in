@@ -1,0 +1,16 @@
+# Maintainer metadata for the native Arch Linux package produced by Etapa 03.
+pkgname=nexxus-session
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Nexxus session runtime and lifecycle orchestrator'
+arch=('x86_64')
+url='https://github.com/mintonogueira/nexxus-de'
+license=('GPL-3.0-only')
+depends=('gcc-libs')
+source=('nexxus-session' 'session.toml.example')
+sha256sums=('@BINARY_SHA256@' '@CONFIG_SHA256@')
+
+package() {
+    install -Dm755 "$srcdir/nexxus-session" "$pkgdir/usr/bin/nexxus-session"
+    install -Dm644 "$srcdir/session.toml.example" "$pkgdir/usr/share/doc/nexxus-session/session.toml.example"
+}
