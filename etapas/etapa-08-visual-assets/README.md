@@ -1,6 +1,6 @@
 # Nexxus — Etapa 08 — Visual Assets
 
-**Status:** `EM ANDAMENTO`
+**Status:** `VALIDADO`
 
 A Etapa 08 formaliza os recursos visuais próprios do Nexxus sem antecipar Window Chrome, Panel, Settings ou temas GTK/Qt. O payload runtime é composto somente por assets e manifests; a integração gráfica continua consumindo a infraestrutura entregue pela Etapa 07.
 
@@ -20,7 +20,11 @@ SVGs simbólicos próprios usam `#FFFFFF` como token canônico de cor. O consumi
 
 ## Runtime
 
-Os dados são instalados em `/usr/share/nexxus/assets`. O package runtime depende de Hack pelo pacote oficial da distribuição.
+Os dados são instalados em `/usr/share/nexxus/assets`. O pacote runtime depende de Hack pelo pacote oficial da distribuição.
+
+## Validação
+
+A implementação foi validada no CI em Arch Linux e Debian, incluindo geração, inspeção e instalação dos pacotes binários nativos. O handoff completo está em `docs/HANDOFF.md`.
 
 ## Fronteiras preservadas
 
