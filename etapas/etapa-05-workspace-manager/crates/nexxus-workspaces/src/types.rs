@@ -6,7 +6,10 @@ use std::collections::BTreeSet;
 use thiserror::Error;
 
 /// Stable identifier persisted across renames and configuration reloads.
+/// Deserialization also passes through the non-zero invariant, preventing an
+/// invalid sentinel from entering the manager through a hand-edited TOML file.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(try_from = "u32", into = "u32")]
 pub struct WorkspaceId(u32);
 
 impl WorkspaceId {
@@ -20,6 +23,20 @@ impl WorkspaceId {
 
     pub const fn get(self) -> u32 {
         self.0
+    }
+}
+
+impl TryFrom<u32> for WorkspaceId {
+    type Error = WorkspaceIdError;
+
+    fn try_from(value: u32) -> Result<Self, Self::Error> {
+        Self::new(value)
+    }
+}
+
+impl From<WorkspaceId> for u32 {
+    fn from(value: WorkspaceId) -> Self {
+        value.get()
     }
 }
 
@@ -38,17 +55,12 @@ pub enum WorkspaceKind {
 
 /// Controls only automatic cleanup of dynamic workspaces. Creation remains an
 /// explicit manager operation so later UI/settings stages can choose the policy.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum DynamicPolicy {
     KeepEmpty,
+    #[default]
     RemoveEmptyInactive,
-}
-
-impl Default for DynamicPolicy {
-    fn default() -> Self {
-        Self::RemoveEmptyInactive
-    }
 }
 
 /// Persistent definition. Window membership is intentionally absent because
