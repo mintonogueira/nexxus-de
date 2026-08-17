@@ -105,7 +105,9 @@ jobs:
           [ -f "$lock_file" ] || { echo 'Cargo.lock validado não encontrado' >&2; exit 1; }
           cp "$lock_file" "$stage/Cargo.lock"
           cd "$stage"
-          cargo fmt --all
+          # Normaliza somente o crate desta etapa; módulos anteriores são
+          # dependências consumidas e não podem ser editados por este job.
+          cargo fmt -p nexxus-shortcuts
           sh ./scripts/check-posix.sh
           sh ./scripts/create-delivery.sh
       - name: Exportar snapshot da entrega
