@@ -7,8 +7,8 @@ use nexxus_window_chrome::{
     release_for_manual_operation, resized_geometry, tile_fit,
 };
 use nexxus_wm::{
-    BackendCommandSink, Geometry, SizeConstraints, WindowId, WindowManager, WindowMetadata, WmCommand,
-    WmEvent, WindowPlacement,
+    BackendCommandSink, Geometry, SizeConstraints, WindowId, WindowManager, WindowMetadata,
+    WindowPlacement, WmCommand, WmEvent,
 };
 use nexxus_workspaces::WorkspaceManager;
 
@@ -23,6 +23,11 @@ impl BackendCommandSink for RecordingSink {
 
 fn id(value: u64) -> WindowId {
     WindowId::new(value).unwrap()
+}
+
+fn stage08_icons() -> std::path::PathBuf {
+    std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../etapa-08-visual-assets/assets/icons")
 }
 
 #[test]
@@ -69,7 +74,10 @@ fn titlebar_buttons_have_priority_over_drag_region() {
         layout.hit_test(LogicalPoint::new(510.0, 16.0)),
         HitTarget::Button(ChromeButton::TileFit)
     );
-    assert_eq!(layout.hit_test(LogicalPoint::new(200.0, 16.0)), HitTarget::Titlebar);
+    assert_eq!(
+        layout.hit_test(LogicalPoint::new(200.0, 16.0)),
+        HitTarget::Titlebar
+    );
 }
 
 #[test]
@@ -90,8 +98,11 @@ fn frame_extents_scale_to_physical_pixels() {
 
 #[test]
 fn painter_consumes_stage08_window_icons_without_animation_state() {
-    let root = std::path::PathBuf::from("../etapa-08-visual-assets/assets");
-    let mut painter = ChromePainter::new(Theme::default(), ChromeMetrics::default(), AssetSource::new(root));
+    let mut painter = ChromePainter::new(
+        Theme::default(),
+        ChromeMetrics::default(),
+        AssetSource::new(stage08_icons()),
+    );
     let frame = painter
         .render(
             640.0,
@@ -124,7 +135,10 @@ fn tile_fit_and_manual_release_use_stage06_engine_and_do_not_trap_window() {
     let mut workspaces = WorkspaceManager::with_single_fixed("MAIN").unwrap();
     workspaces.assign_new_window(window, None).unwrap();
     let mut engine = TilingEngine::new();
-    let area = OutputArea::new(OutputId::new(1).unwrap(), Geometry::new(0, 0, 1920, 1080).unwrap());
+    let area = OutputArea::new(
+        OutputId::new(1).unwrap(),
+        Geometry::new(0, 0, 1920, 1080).unwrap(),
+    );
     let mut sink = RecordingSink(Vec::new());
 
     let plan = tile_fit(&mut engine, &workspaces, &mut wm, &mut sink, area, window).unwrap();
@@ -135,7 +149,10 @@ fn tile_fit_and_manual_release_use_stage06_engine_and_do_not_trap_window() {
     let release = release_for_manual_operation(&mut engine, &mut wm, &mut sink, window)
         .unwrap()
         .expect("tiled window must be released");
-    assert_eq!(wm.window(window).unwrap().placement, WindowPlacement::Floating);
+    assert_eq!(
+        wm.window(window).unwrap().placement,
+        WindowPlacement::Floating
+    );
     assert_eq!(wm.window(window).unwrap().geometry, initial);
     assert_eq!(sink.0.as_slice(), release.commands());
 }
