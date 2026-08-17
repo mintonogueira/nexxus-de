@@ -1,8 +1,9 @@
 # NEXXUS — ETAPA 09 — Window Chrome
 
 **Versão:** 0.1.0  
-**Status:** VALIDADO EM BRANCH — publicação final na `main` pendente  
-**Data:** 2026-08-17
+**Status:** VALIDADO E PUBLICADO NA `main`  
+**Data:** 2026-08-17  
+**Integração inicial na `main`:** `44dcf4114baf1156e33d725ca1eacd05b8a54f8d`
 
 ## Implementado
 
@@ -16,9 +17,9 @@
 - wrappers Arch Linux e Debian em Shell POSIX com autoprovisionamento;
 - testes unitários e integração X11 real em Xvfb.
 
-## Validação registrada
+## Validação final da implementação
 
-GitHub Actions run `31995844354`: Arch Linux, Debian e delivery concluíram com sucesso. A suíte executou release build, rustfmt, Clippy com warnings negados, testes CSD/SSD, hit-testing, tile-fit/release, X11/Xvfb, maximize/restore e rustdoc.
+GitHub Actions run `31996415376`: Arch Linux, Debian e delivery concluíram com sucesso. A suíte executou release build, rustfmt, Clippy com warnings negados, testes CSD/SSD, hit-testing, tile-fit/release, X11/Xvfb, maximize/restore e rustdoc.
 
 ## Empacotamento
 
