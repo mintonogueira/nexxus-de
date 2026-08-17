@@ -1,7 +1,7 @@
 //! Desktop-shell state, actions and live application-index integration.
 
 use std::path::{Path, PathBuf};
-use std::sync::mpsc::{Receiver, TryRecvError};
+use std::sync::mpsc::Receiver;
 
 use nexxus_shortcuts::{CommandTarget, ShellAction};
 use nexxus_ui::{LogicalPoint, LogicalRect, ScaleFactor};
@@ -400,16 +400,11 @@ impl DesktopShellRuntime {
     /// the model snapshot; watcher/rescan failures preserve the last valid view.
     pub fn poll_index_updates(&mut self) -> Vec<ApplicationIndexEvent> {
         let mut observed = Vec::new();
-        loop {
-            match self.index_events.try_recv() {
-                Ok(event) => {
-                    if matches!(event, ApplicationIndexEvent::Changed(_)) {
-                        self.shell.apply_index_snapshot(self.index_service.snapshot());
-                    }
-                    observed.push(event);
-                }
-                Err(TryRecvError::Empty | TryRecvError::Disconnected) => break,
+        while let Ok(event) = self.index_events.try_recv() {
+            if matches!(event, ApplicationIndexEvent::Changed(_)) {
+                self.shell.apply_index_snapshot(self.index_service.snapshot());
             }
+            observed.push(event);
         }
         observed
     }
