@@ -105,17 +105,11 @@ impl Default for UiMetrics {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Default, PartialEq)]
 pub struct Theme {
     pub palette: Palette,
     pub typography: Typography,
     pub metrics: UiMetrics,
-}
-
-impl Default for Theme {
-    fn default() -> Self {
-        Self { palette: Palette::default(), typography: Typography::default(), metrics: UiMetrics::default() }
-    }
 }
 
 impl Theme {
