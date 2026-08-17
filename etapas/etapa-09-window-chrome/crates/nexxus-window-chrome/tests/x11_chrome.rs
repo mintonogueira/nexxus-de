@@ -37,8 +37,14 @@ fn create_client(conn: &RustConnection, screen_num: usize, csd: bool, x: i16) ->
             .reply()
             .unwrap()
             .atom;
-        conn.change_property32(PropMode::REPLACE, window, gtk, AtomEnum::CARDINAL, &[1, 1, 24, 1])
-            .unwrap();
+        conn.change_property32(
+            PropMode::REPLACE,
+            window,
+            gtk,
+            AtomEnum::CARDINAL,
+            &[1, 1, 24, 1],
+        )
+        .unwrap();
     }
     conn.map_window(window).unwrap();
     conn.flush().unwrap();
@@ -61,6 +67,11 @@ fn wait_for_windows(controller: &nexxus_backend_x11::X11Controller, ids: &[u32])
     panic!("X11 backend did not observe test clients in time");
 }
 
+fn stage08_icons() -> std::path::PathBuf {
+    std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../etapa-08-visual-assets/assets/icons")
+}
+
 #[test]
 fn x11_adapter_decorates_ssd_and_skips_gtk_csd() {
     let mut backend = X11Service::start(None).unwrap();
@@ -70,7 +81,7 @@ fn x11_adapter_decorates_ssd_and_skips_gtk_csd() {
     let csd = create_client(&clients, client_screen, true, 680);
     wait_for_windows(&controller, &[ssd, csd]);
 
-    let assets = AssetSource::new("../etapa-08-visual-assets/assets");
+    let assets = AssetSource::new(stage08_icons());
     let mut chrome = X11ChromeAdapter::connect(
         None,
         controller.clone(),
