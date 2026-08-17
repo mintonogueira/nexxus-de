@@ -290,9 +290,7 @@ mod tests {
         write_svg(&official);
         let resolver = FinderIconResolver::new(root.join("assets"), vec![icon_root]);
         assert_eq!(
-            resolver.resolve_path(&IconReference::ExternalName(
-                "org.example.App".to_owned()
-            )),
+            resolver.resolve_path(&IconReference::ExternalName("org.example.App".to_owned())),
             Some(official)
         );
         fs::remove_dir_all(root).unwrap();

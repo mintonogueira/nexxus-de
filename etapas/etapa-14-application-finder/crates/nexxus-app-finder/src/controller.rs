@@ -219,9 +219,8 @@ mod tests {
     fn shortcut_opens_and_escape_closes() {
         let mut controller = FinderController::new(corpus());
         assert_eq!(
-            controller.handle_shortcut_target(CommandTarget::Launcher(
-                LauncherAction::ApplicationFinder
-            )),
+            controller
+                .handle_shortcut_target(CommandTarget::Launcher(LauncherAction::ApplicationFinder)),
             FinderAction::Opened
         );
         assert!(controller.state().visible);

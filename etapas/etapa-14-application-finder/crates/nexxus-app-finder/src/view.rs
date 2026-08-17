@@ -175,9 +175,10 @@ impl FinderView {
                 list.push(DrawCommand::Text {
                     rect: LogicalRect::new(
                         row.x + RESULT_TEXT_LEFT,
-                        row.y + (RESULT_ROW_HEIGHT
-                            - theme.typography.body_size * theme.typography.line_height)
-                            / 2.0,
+                        row.y
+                            + (RESULT_ROW_HEIGHT
+                                - theme.typography.body_size * theme.typography.line_height)
+                                / 2.0,
                         (row.width - RESULT_TEXT_LEFT - theme.metrics.padding).max(0.0),
                         theme.typography.body_size * theme.typography.line_height,
                     ),
@@ -207,7 +208,10 @@ impl FinderView {
 
     fn visible_window(&self, rect: LogicalRect) -> (usize, usize) {
         let capacity = ((rect.height / RESULT_ROW_HEIGHT).floor() as usize).max(1);
-        let selected = self.selected.unwrap_or(0).min(self.results.len().saturating_sub(1));
+        let selected = self
+            .selected
+            .unwrap_or(0)
+            .min(self.results.len().saturating_sub(1));
         let start = if selected >= capacity {
             selected + 1 - capacity
         } else {
