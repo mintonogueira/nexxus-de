@@ -41,6 +41,7 @@ pub struct ApplicationIndexService {
 }
 
 impl ApplicationIndexService {
+    /// Performs an authoritative initial scan and starts the filesystem event worker.
     pub fn start(config: ApplicationIndexConfig) -> Result<Self, ServiceError> {
         let initial = scan(&config)?;
         let snapshot = Arc::new(RwLock::new(initial));
@@ -83,10 +84,12 @@ impl ApplicationIndexService {
         })
     }
 
+    /// Returns a clone of the latest immutable generation for lock-free consumer use.
     pub fn snapshot(&self) -> IndexSnapshot {
         read_snapshot(&self.snapshot).clone()
     }
 
+    /// Adds a consumer event stream. Dead receivers are pruned during broadcast.
     pub fn subscribe(&self) -> mpsc::Receiver<ApplicationIndexEvent> {
         let (sender, receiver) = mpsc::channel();
         lock_mutex(&self.subscribers).push(sender);
@@ -136,6 +139,8 @@ fn worker_loop(
             continue;
         }
 
+        // Package installs commonly emit bursts of create/write/rename events.
+        // A short debounce collapses them into one deterministic authoritative rescan.
         thread::sleep(Duration::from_millis(120));
         while event_rx.try_recv().is_ok() {}
 
@@ -169,6 +174,7 @@ fn worker_loop(
     }
 }
 
+/// Reconciles watcher paths as optional XDG/Flatpak directories appear or disappear.
 fn refresh_watch_paths(
     config: &ApplicationIndexConfig,
     watcher: &Arc<Mutex<RecommendedWatcher>>,
@@ -186,7 +192,12 @@ fn refresh_watch_paths(
     }
 
     let mut watcher = lock_mutex(watcher);
-    for path in watched.keys().filter(|path| !desired.contains_key(*path)).cloned().collect::<Vec<_>>() {
+    for path in watched
+        .keys()
+        .filter(|path| !desired.contains_key(*path))
+        .cloned()
+        .collect::<Vec<_>>()
+    {
         let _ = watcher.unwatch(&path);
         watched.remove(&path);
     }
@@ -203,12 +214,12 @@ fn refresh_watch_paths(
     Ok(())
 }
 
+/// Finds the closest existing directory while refusing `/` itself as a watch
+/// target; watching the filesystem root would be unnecessarily broad and noisy.
 fn nearest_existing_parent(path: &Path) -> Option<PathBuf> {
     let mut current = path.parent();
     while let Some(candidate) = current {
-        if candidate.parent().is_none() {
-            return None;
-        }
+        candidate.parent()?;
         if candidate.is_dir() {
             return Some(candidate.to_path_buf());
         }
@@ -225,7 +236,9 @@ fn broadcast(
 }
 
 fn lock_mutex<T>(mutex: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
-    mutex.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
+    mutex
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
 }
 
 fn read_snapshot(lock: &RwLock<IndexSnapshot>) -> std::sync::RwLockReadGuard<'_, IndexSnapshot> {
@@ -233,5 +246,6 @@ fn read_snapshot(lock: &RwLock<IndexSnapshot>) -> std::sync::RwLockReadGuard<'_,
 }
 
 fn write_snapshot(lock: &RwLock<IndexSnapshot>) -> std::sync::RwLockWriteGuard<'_, IndexSnapshot> {
-    lock.write().unwrap_or_else(|poisoned| poisoned.into_inner())
+    lock.write()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
 }
