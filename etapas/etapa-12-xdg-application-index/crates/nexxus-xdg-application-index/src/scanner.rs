@@ -35,7 +35,7 @@ pub fn scan(config: &ApplicationIndexConfig) -> Result<crate::IndexSnapshot, Sca
             continue;
         }
         let mut files = Vec::new();
-        collect_desktop_files(&root.path, &root.path, &mut files, &mut diagnostics);
+        collect_desktop_files(&root.path, &mut files, &mut diagnostics);
         files.sort();
 
         for path in files {
@@ -195,8 +195,9 @@ fn desktop_id(root: &Path, path: &Path) -> Option<String> {
     (!components.is_empty()).then(|| components.join("-"))
 }
 
+/// Collects desktop files recursively without following directory symlinks,
+/// which avoids cycles while still accepting symlinks that resolve to files.
 fn collect_desktop_files(
-    root: &Path,
     directory: &Path,
     files: &mut Vec<PathBuf>,
     diagnostics: &mut Vec<IndexDiagnostic>,
@@ -221,7 +222,7 @@ fn collect_desktop_files(
             }
         };
         if file_type.is_dir() {
-            collect_desktop_files(root, &path, files, diagnostics);
+            collect_desktop_files(&path, files, diagnostics);
             continue;
         }
         if file_type.is_symlink() && !fs::metadata(&path).is_ok_and(|meta| meta.is_file()) {
