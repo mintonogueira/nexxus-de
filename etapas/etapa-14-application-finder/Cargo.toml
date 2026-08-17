@@ -9,6 +9,9 @@ rust-version = "1.85"
 license = "GPL-3.0-only"
 
 [workspace.dependencies]
+# Mesmo decoder raster já validado na Etapa 13; somente PNG é necessário aqui,
+# reduzindo features/transitivas para a superfície compacta do Finder.
+image = { version = "0.25.8", default-features = false, features = ["png"] }
 nexxus-shortcuts = { path = "../etapa-10-shortcuts-core/crates/nexxus-shortcuts" }
 nexxus-ui = { path = "../etapa-07-nexxus-ui-core/crates/nexxus-ui" }
 nexxus-xdg-application-index = { path = "../etapa-12-xdg-application-index/crates/nexxus-xdg-application-index" }
