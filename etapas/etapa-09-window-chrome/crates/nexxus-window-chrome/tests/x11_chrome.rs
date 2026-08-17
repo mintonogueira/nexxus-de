@@ -10,10 +10,10 @@ use x11rb::connection::Connection;
 use x11rb::protocol::xproto::{
     AtomEnum, ConnectionExt as _, CreateWindowAux, EventMask, PropMode, WindowClass,
 };
+use x11rb::rust_connection::RustConnection;
 use x11rb::wrapper::ConnectionExt as _;
 
-fn create_client(csd: bool, x: i16) -> u32 {
-    let (conn, screen_num) = x11rb::connect(None).unwrap();
+fn create_client(conn: &RustConnection, screen_num: usize, csd: bool, x: i16) -> u32 {
     let screen = &conn.setup().roots[screen_num];
     let window = conn.generate_id().unwrap();
     conn.create_window(
@@ -65,8 +65,9 @@ fn wait_for_windows(controller: &nexxus_backend_x11::X11Controller, ids: &[u32])
 fn x11_adapter_decorates_ssd_and_skips_gtk_csd() {
     let mut backend = X11Service::start(None).unwrap();
     let controller = backend.controller();
-    let ssd = create_client(false, 160);
-    let csd = create_client(true, 680);
+    let (clients, client_screen) = x11rb::connect(None).unwrap();
+    let ssd = create_client(&clients, client_screen, false, 160);
+    let csd = create_client(&clients, client_screen, true, 680);
     wait_for_windows(&controller, &[ssd, csd]);
 
     let assets = AssetSource::new("../etapa-08-visual-assets/assets");
@@ -110,5 +111,7 @@ fn x11_adapter_decorates_ssd_and_skips_gtk_csd() {
     assert_eq!(csd_reply.type_, 0);
 
     drop(chrome);
+    drop(probe);
+    drop(clients);
     let _ = backend.stop();
 }
