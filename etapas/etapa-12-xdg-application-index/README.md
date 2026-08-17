@@ -1,15 +1,30 @@
-# NEXXUS — ETAPA 12 — XDG Application Index
+# Nexxus — Etapa 12 — XDG Application Index
 
-**Status:** PRONTA_PARA_INICIAR
+**Status:** `EM_IMPLEMENTACAO`
 
-Pasta preparada estruturalmente após o encerramento validado da Etapa 11 — Workspace Bar.
+A Etapa 12 entrega o índice unificado e dinâmico de aplicações que será consumido, por contrato, pelo Desktop Shell, Application Finder e Application Menu em etapas próprias.
 
-## Objetivo da próxima etapa
+## Entrega funcional
 
-Criar o índice unificado e dinâmico de aplicações para Menu, Desktop e Application Finder, conforme o Plano Mestre do Nexxus.
+- leitura de arquivos `.desktop` em raízes XDG por precedência;
+- inclusão explícita dos exports de aplicações Flatpak sem consultar o CLI do Flatpak;
+- Desktop File ID canônico e mascaramento por `Hidden=true`;
+- `Name`, `Exec`, `Icon`, `Categories`, `Keywords`, `NoDisplay`, `OnlyShowIn` e `NotShowIn` normalizados;
+- categorias principais XDG e fallback `Other`;
+- ícones oficiais preservados e fallback semântico fornecido pela Etapa 08;
+- parser `Exec` que produz somente programa + argv e nunca chama shell;
+- atualização dinâmica por eventos de filesystem com snapshots imutáveis e deltas;
+- API comum de lookup, categorias, busca simples e assinatura de eventos;
+- diagnósticos de entradas inválidas sem derrubar o serviço.
 
-A implementação deverá ocorrer exclusivamente em uma nova conversa dedicada à Etapa 12, após consulta às fontes normativas, ao handoff da Etapa 11 e aos contratos das dependências pertinentes.
+## Fronteiras
 
-**Nova conversa sugerida:** `NEXXUS FASE 12 — XDG Application Index`
+Esta etapa não implementa Menu visual, Desktop Shell, menu de contexto do desktop nem Application Finder visual.
 
-Nenhum código da Etapa 12 foi iniciado nesta conversa.
+## Crate
+
+`crates/nexxus-xdg-application-index`
+
+## Build
+
+Os wrappers `scripts/build-install-arch.sh` e `scripts/build-install-debian.sh` são Shell POSIX `/bin/sh`, autoprovisionam as dependências do cenário, compilam/testam como usuário normal e preparam staging isolado. A entrega é biblioteca/serviço integrável (`NEXXUS_INSTALLABLE=0`); pacote nativo independente é N/A nesta etapa.
