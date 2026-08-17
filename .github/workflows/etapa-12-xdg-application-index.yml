@@ -3,7 +3,7 @@ name: Etapa 12 - XDG Application Index
 
 on:
   push:
-    branches: [main, etapa-12-xdg-application-index]
+    branches: [main, etapa-12-xdg-application-index, etapa-12-xdg-application-index-impl]
     paths:
       - 'etapas/etapa-12-xdg-application-index/**'
       - '.github/workflows/etapa-12-xdg-application-index.yml'
@@ -83,7 +83,7 @@ jobs:
           fi
 
   delivery:
-    if: github.ref == 'refs/heads/etapa-12-xdg-application-index'
+    if: github.ref == 'refs/heads/etapa-12-xdg-application-index-impl'
     needs: [debian-trixie, archlinux-current]
     runs-on: ubuntu-latest
     permissions:
@@ -91,7 +91,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: etapa-12-xdg-application-index
+          ref: etapa-12-xdg-application-index-impl
       - name: Baixar estado Rust validado
         uses: actions/download-artifact@v5
         with:
@@ -127,4 +127,4 @@ jobs:
             exit 0
           fi
           git commit -m 'build(etapa-12): publica estado e snapshot validados [skip ci]'
-          git push origin HEAD:etapa-12-xdg-application-index
+          git push origin HEAD:etapa-12-xdg-application-index-impl
