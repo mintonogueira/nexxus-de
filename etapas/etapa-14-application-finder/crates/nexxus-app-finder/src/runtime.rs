@@ -101,3 +101,86 @@ impl FinderRuntime {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use std::path::{Path, PathBuf};
+    use std::thread;
+    use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+    use nexxus_shortcuts::{CommandTarget, LauncherAction};
+    use nexxus_ui::{Key, Modifiers};
+    use nexxus_xdg_application_index::ApplicationRoot;
+
+    fn temp_root(label: &str) -> PathBuf {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock must be after UNIX epoch")
+            .as_nanos();
+        std::env::temp_dir().join(format!(
+            "nexxus-app-finder-runtime-{label}-{}-{nonce}",
+            std::process::id()
+        ))
+    }
+
+    fn wait_for_file(path: &Path) -> bool {
+        for _ in 0..100 {
+            if path.is_file() {
+                return true;
+            }
+            thread::sleep(Duration::from_millis(10));
+        }
+        false
+    }
+
+    #[test]
+    fn shortcut_search_enter_launches_the_selected_desktop_entry() {
+        let root = temp_root("launch");
+        fs::create_dir_all(&root).unwrap();
+        let marker = root.join("launched.marker");
+        fs::write(
+            root.join("org.example.FinderAlpha.desktop"),
+            format!(
+                "[Desktop Entry]\nType=Application\nName=Finder Alpha\nExec=/usr/bin/touch {}\nCategories=Utility;\n",
+                marker.display()
+            ),
+        )
+        .unwrap();
+
+        let config = ApplicationIndexConfig {
+            roots: vec![ApplicationRoot::custom(&root, "finder-runtime-test")],
+            locales: Vec::new(),
+            current_desktops: Vec::new(),
+            max_desktop_file_bytes: 2 * 1024 * 1024,
+        };
+        let mut runtime = FinderRuntime::start(config).unwrap();
+        assert_eq!(
+            runtime.handle_shortcut_target(CommandTarget::Launcher(
+                LauncherAction::ApplicationFinder
+            )),
+            FinderAction::Opened
+        );
+        assert_eq!(
+            runtime
+                .handle_ui_event(&UiEvent::TextInput("alpha".to_owned()))
+                .unwrap(),
+            FinderAction::None
+        );
+        assert_eq!(
+            runtime
+                .handle_ui_event(&UiEvent::KeyDown {
+                    key: Key::Enter,
+                    modifiers: Modifiers::default(),
+                })
+                .unwrap(),
+            FinderAction::Launch("org.example.FinderAlpha.desktop".to_owned())
+        );
+        assert!(wait_for_file(&marker), "selected application was not launched");
+        assert!(!runtime.controller().state().visible);
+
+        drop(runtime);
+        fs::remove_dir_all(root).unwrap();
+    }
+}
