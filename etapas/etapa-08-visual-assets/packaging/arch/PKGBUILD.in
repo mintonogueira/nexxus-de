@@ -1,0 +1,15 @@
+# Gerado pelo wrapper POSIX da Etapa 08; makepkg usa o formato nativo Arch.
+pkgname=nexxus-visual-assets
+pkgver=@VERSION@
+pkgrel=1
+pkgdesc='Visual Assets oficiais do Nexxus Desktop Environment'
+arch=('any')
+url='https://github.com/mintonogueira/nexxus-de'
+license=('GPL-3.0-only')
+depends=('ttf-hack')
+source=('nexxus-visual-assets-payload.tar.gz')
+sha256sums=('@PAYLOAD_SHA256@')
+
+package() {
+    tar -xzf "$srcdir/nexxus-visual-assets-payload.tar.gz" -C "$pkgdir"
+}

@@ -1,0 +1,151 @@
+# CI real da Etapa 08 nos cenários Arch Linux e Debian.
+name: Etapa 08 - Visual Assets
+
+on:
+  push:
+    branches: [main, etapa-08-visual-assets]
+    paths:
+      - 'etapas/etapa-08-visual-assets/**'
+      - '.github/workflows/etapa-08-visual-assets.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'etapas/etapa-08-visual-assets/**'
+      - '.github/workflows/etapa-08-visual-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  debian-trixie:
+    runs-on: ubuntu-latest
+    container: debian:trixie-slim
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends sudo git ca-certificates passwd
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/apt-get' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v5
+      - name: Executar wrapper Debian como usuário normal
+        shell: sh
+        run: |
+          stage="$GITHUB_WORKSPACE/etapas/etapa-08-visual-assets"
+          chown -R nexxus-builder:nexxus-builder "$stage"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$stage' && sh ./scripts/check-posix.sh && sh ./scripts/build-install-debian.sh" > /tmp/nexxus-assets-debian.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-assets-debian.log
+          if [ "$status" -ne 0 ]; then tail -n 220 /tmp/nexxus-assets-debian.log; exit "$status"; fi
+      - name: Exportar pacote Debian e métricas
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-08-debian
+          path: |
+            etapas/etapa-08-visual-assets/Cargo.lock
+            etapas/etapa-08-visual-assets/dist/debian/*.deb
+            etapas/etapa-08-visual-assets/metrics/*.txt
+          if-no-files-found: error
+
+  archlinux-current:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    steps:
+      - name: Preparar privilégio mínimo do builder
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --needed --noconfirm sudo git ca-certificates shadow
+          useradd -m nexxus-builder
+          printf '%s\n' 'nexxus-builder ALL=(root) NOPASSWD: /usr/bin/pacman' > /etc/sudoers.d/nexxus-builder
+          chmod 0440 /etc/sudoers.d/nexxus-builder
+      - uses: actions/checkout@v5
+      - name: Executar wrapper Arch como usuário normal
+        shell: sh
+        run: |
+          stage="$GITHUB_WORKSPACE/etapas/etapa-08-visual-assets"
+          chown -R nexxus-builder:nexxus-builder "$stage"
+          set +e
+          su -s /bin/sh nexxus-builder -c "cd '$stage' && sh ./scripts/check-posix.sh && sh ./scripts/build-install-arch.sh" > /tmp/nexxus-assets-arch.log 2>&1
+          status=$?
+          set -e
+          cat /tmp/nexxus-assets-arch.log
+          if [ "$status" -ne 0 ]; then tail -n 220 /tmp/nexxus-assets-arch.log; exit "$status"; fi
+      - name: Exportar pacote Arch e métricas
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-08-arch
+          path: |
+            etapas/etapa-08-visual-assets/dist/arch/*.pkg.tar.*
+            etapas/etapa-08-visual-assets/metrics/*.txt
+          if-no-files-found: error
+
+  delivery:
+    if: github.ref == 'refs/heads/etapa-08-visual-assets'
+    needs: [debian-trixie, archlinux-current]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: etapa-08-visual-assets
+      - name: Baixar pacote Arch validado
+        uses: actions/download-artifact@v5
+        with:
+          name: etapa-08-arch
+          path: /tmp/etapa-08-arch
+      - name: Baixar pacote Debian validado
+        uses: actions/download-artifact@v5
+        with:
+          name: etapa-08-debian
+          path: /tmp/etapa-08-debian
+      - name: Consolidar pacotes, métricas e snapshot
+        shell: sh
+        run: |
+          stage="$GITHUB_WORKSPACE/etapas/etapa-08-visual-assets"
+          mkdir -p "$stage/dist/arch" "$stage/dist/debian" "$stage/metrics"
+          rm -f "$stage/dist/arch"/*.pkg.tar.* "$stage/dist/debian"/*.deb
+          arch_package=$(find /tmp/etapa-08-arch -type f -name 'nexxus-visual-assets-*.pkg.tar.*' ! -name '*-debug-*' | head -n 1)
+          debian_package=$(find /tmp/etapa-08-debian -type f -name 'nexxus-visual-assets_*.deb' | head -n 1)
+          lock_file=$(find /tmp/etapa-08-debian -type f -name 'Cargo.lock' | head -n 1)
+          [ -f "$arch_package" ] || { echo 'pacote Arch validado não encontrado' >&2; exit 1; }
+          [ -f "$debian_package" ] || { echo 'pacote Debian validado não encontrado' >&2; exit 1; }
+          [ -f "$lock_file" ] || { echo 'Cargo.lock validado não encontrado' >&2; exit 1; }
+          cp "$arch_package" "$stage/dist/arch/"
+          cp "$debian_package" "$stage/dist/debian/"
+          cp "$lock_file" "$stage/Cargo.lock"
+          arch_sha=$(sha256sum "$arch_package" | awk '{print $1}')
+          deb_sha=$(sha256sum "$debian_package" | awk '{print $1}')
+          printf 'arch_package=%s\narch_sha256=%s\ndebian_package=%s\ndebian_sha256=%s\n' \
+            "$(basename "$arch_package")" "$arch_sha" "$(basename "$debian_package")" "$deb_sha" \
+            > "$stage/metrics/packages.txt"
+          cd "$stage"
+          sh ./scripts/check-posix.sh
+          sh ./scripts/create-delivery.sh
+      - name: Exportar snapshot da entrega
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-08-delivery
+          path: |
+            etapas/etapa-08-visual-assets/entrega/*.tar.gz
+            etapas/etapa-08-visual-assets/entrega/*.sha256
+          if-no-files-found: error
+      - name: Versionar pacotes e snapshot validados
+        shell: sh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add etapas/etapa-08-visual-assets/Cargo.lock \
+                  etapas/etapa-08-visual-assets/dist \
+                  etapas/etapa-08-visual-assets/metrics \
+                  etapas/etapa-08-visual-assets/entrega
+          if git diff --cached --quiet; then
+            echo 'Artefatos já correspondem ao estado validado.'
+            exit 0
+          fi
+          git commit -m 'build(etapa-08): publica pacotes e snapshot validados [skip ci]'
+          git push origin HEAD:etapa-08-visual-assets

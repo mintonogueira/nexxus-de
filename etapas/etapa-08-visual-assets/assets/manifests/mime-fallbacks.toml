@@ -1,0 +1,38 @@
+# Fallbacks semânticos por MIME/padrão.
+schema_version = 1
+
+[[fallbacks]]
+pattern = "inode/directory"
+icon = "folder"
+
+[[fallbacks]]
+pattern = "text/*"
+icon = "text-x-generic"
+
+[[fallbacks]]
+pattern = "image/*"
+icon = "image-x-generic"
+
+[[fallbacks]]
+pattern = "audio/*"
+icon = "audio-x-generic"
+
+[[fallbacks]]
+pattern = "video/*"
+icon = "video-x-generic"
+
+[[fallbacks]]
+pattern = "application/x-executable"
+icon = "application-x-generic"
+
+[[fallbacks]]
+pattern = "application/x-archive"
+icon = "package-x-generic"
+
+[[fallbacks]]
+pattern = "application/*"
+icon = "application-x-generic"
+
+[[fallbacks]]
+pattern = "*/*"
+icon = "application-x-generic"

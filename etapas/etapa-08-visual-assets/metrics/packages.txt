@@ -1,0 +1,4 @@
+arch_package=nexxus-visual-assets-0.1.0-1-any.pkg.tar.zst
+arch_sha256=a76b6bb00ee7db1c013df1f760d1f1f4d4ad0a86720d44a349b9f766cbfb2645
+debian_package=nexxus-visual-assets_0.1.0_all.deb
+debian_sha256=6dd8d64e33150123b2fa520df87eb8daeaf498ffddb1800cd6ac62a730c66043

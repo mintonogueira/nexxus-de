@@ -1,0 +1,9 @@
+Package: nexxus-visual-assets
+Version: @VERSION@
+Section: x11
+Priority: optional
+Architecture: all
+Maintainer: Projeto Nexxus <noreply@example.invalid>
+Depends: fonts-hack
+Description: Visual Assets oficiais do Nexxus Desktop Environment
+ Ícones simbólicos SVG, fallbacks e wallpapers distribuíveis do Nexxus.

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#090B0C"/>
+  <path d="M80 180H520L620 100H1050L1160 240H1840" fill="none" stroke="#7A5A30" stroke-width="8"/>
+  <path d="M80 360H520L620 280H1050L1160 420H1840" fill="none" stroke="#7A5A30" stroke-width="8"/>
+  <path d="M80 540H520L620 460H1050L1160 600H1840" fill="none" stroke="#7A5A30" stroke-width="8"/>
+  <path d="M80 720H520L620 640H1050L1160 780H1840" fill="none" stroke="#7A5A30" stroke-width="8"/>
+  <path d="M80 900H520L620 820H1050L1160 960H1840" fill="none" stroke="#7A5A30" stroke-width="8"/>
+  <circle cx="520" cy="180" r="14" fill="#B98A4B"/>
+  <circle cx="1050" cy="100" r="14" fill="#B98A4B"/>
+  <circle cx="620" cy="280" r="14" fill="#B98A4B"/>
+  <circle cx="1160" cy="240" r="14" fill="#B98A4B"/>
+  <circle cx="520" cy="540" r="14" fill="#B98A4B"/>
+  <circle cx="1050" cy="460" r="14" fill="#B98A4B"/>
+  <circle cx="1160" cy="600" r="14" fill="#B98A4B"/>
+  <circle cx="620" cy="820" r="14" fill="#B98A4B"/>
+</svg>
