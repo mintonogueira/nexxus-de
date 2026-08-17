@@ -25,7 +25,6 @@ use x11rb::wrapper::ConnectionExt as _;
 
 use crate::config::DesktopConfigStore;
 use crate::desktop_dir::resolve_desktop_dir;
-use crate::menu::MenuAction;
 use crate::model::{
     DesktopShellAction, DesktopShellError, DesktopShellRuntime, MonitorGeometry, RuntimeError,
 };
@@ -181,11 +180,11 @@ impl X11DesktopShell {
     ) -> Result<Self, X11DesktopShellError> {
         Self::connect(
             display,
-            DesktopConfigStore::from_environment()?,
+            DesktopConfigStore::from_environment().map_err(DesktopShellError::from)?,
             ApplicationIndexConfig::from_environment().map_err(|error| {
                 X11DesktopShellError::Unavailable(format!("XDG application index config: {error}"))
             })?,
-            resolve_desktop_dir()?,
+            resolve_desktop_dir().map_err(DesktopShellError::from)?,
             scale,
             theme,
             assets,
