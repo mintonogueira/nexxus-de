@@ -1,0 +1,13 @@
+[package]
+name = "nexxus-workspace-bar"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+nexxus-workspaces.workspace = true
+nexxus-ui.workspace = true
+nexxus-assets.workspace = true
+thiserror.workspace = true
+x11rb.workspace = true
