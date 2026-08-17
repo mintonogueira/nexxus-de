@@ -77,7 +77,7 @@ pub fn entries(page: &MenuPage, snapshot: &IndexSnapshot) -> Vec<MenuEntry> {
                     )
                 })
                 .collect::<Vec<_>>();
-            result.sort_by(|left, right| left.label.to_lowercase().cmp(&right.label.to_lowercase()));
+            result.sort_by_key(|item| item.label.to_lowercase());
             result.push(entry("Back", MenuAction::Back));
             result
         }
