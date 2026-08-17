@@ -89,9 +89,13 @@ jobs:
     permissions:
       contents: write
     steps:
+      # O delivery deve empacotar exatamente o commit que os jobs anteriores
+      # testaram. Fazer checkout da branch aqui permitiria uma corrida na qual
+      # uma alteração mais nova, ainda não validada, entrasse no snapshot.
       - uses: actions/checkout@v5
         with:
-          ref: etapa-14-application-finder-impl
+          ref: ${{ github.sha }}
+          fetch-depth: 0
       - name: Baixar estado Rust validado
         uses: actions/download-artifact@v5
         with:
@@ -116,9 +120,15 @@ jobs:
             etapas/etapa-14-application-finder/entrega/*.tar.gz
             etapas/etapa-14-application-finder/entrega/*.sha256
           if-no-files-found: error
-      - name: Versionar estado validado
+      - name: Versionar somente se a branch ainda aponta para o commit validado
         shell: sh
         run: |
+          git fetch --no-tags origin etapa-14-application-finder-impl
+          remote_sha=$(git rev-parse refs/remotes/origin/etapa-14-application-finder-impl)
+          if [ "$remote_sha" != "$GITHUB_SHA" ]; then
+            echo "Branch avançou para $remote_sha; o delivery de $GITHUB_SHA não será publicado sobre código mais novo."
+            exit 0
+          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add etapas/etapa-14-application-finder

@@ -1,9 +1,9 @@
-//! Resolution and painting of application icons for the Finder result rows.
+//! Resolves and paints application icons for Finder result rows.
 //!
-//! `.desktop` parsing remains in Stage 12. This module only resolves the
-//! already-normalized `IconReference` into a local graphic and emits Nexxus UI
-//! display commands. PNG and SVG cover the normal modern icon-theme paths;
-//! legacy XPM-only artwork falls back to the Nexxus generic application icon.
+//! Stage 12 owns `.desktop` parsing. Stage 14 receives an `IconReference`,
+//! resolves the referenced graphic and emits renderer-neutral Nexxus UI draw
+//! commands. PNG/SVG are supported; unreadable or legacy-only artwork falls
+//! back to the Nexxus generic application icon.
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -17,6 +17,17 @@ use nexxus_xdg_application_index::IconReference;
 const SYSTEM_ASSET_ROOT: &str = "/usr/share/nexxus/assets";
 const GENERIC_FALLBACK: &str = "mimetypes/application-x-generic.svg";
 const MAX_ICON_FILE_BYTES: u64 = 8 * 1024 * 1024;
+const HICOLOR_APP_DIRS: &[&str] = &[
+    "hicolor/scalable/apps",
+    "hicolor/symbolic/apps",
+    "hicolor/256x256/apps",
+    "hicolor/128x128/apps",
+    "hicolor/64x64/apps",
+    "hicolor/48x48/apps",
+    "hicolor/32x32/apps",
+    "hicolor/24x24/apps",
+    "hicolor/16x16/apps",
+];
 
 #[derive(Clone, Debug)]
 enum GraphicAsset {
@@ -24,8 +35,9 @@ enum GraphicAsset {
     Raster(ImageData),
 }
 
-/// Resolves official XDG icon names and Nexxus fallback references without
-/// introducing a second application index or desktop-entry parser.
+/// Resolves official icon references first and uses Nexxus artwork only as a
+/// fallback. The cache avoids decoding the same icon on every incremental-key
+/// repaint.
 #[derive(Clone, Debug)]
 pub struct FinderIconResolver {
     asset_root: PathBuf,
@@ -34,12 +46,11 @@ pub struct FinderIconResolver {
 }
 
 impl FinderIconResolver {
-    /// Uses the canonical installed Nexxus asset root and XDG icon roots.
     pub fn system() -> Self {
         Self::new(PathBuf::from(SYSTEM_ASSET_ROOT), xdg_icon_roots())
     }
 
-    /// Constructor also used by tests and future embedders with staged assets.
+    /// Custom roots keep staging/tests independent from the installed system.
     pub fn new(asset_root: PathBuf, icon_roots: Vec<PathBuf>) -> Self {
         Self {
             asset_root,
@@ -52,11 +63,9 @@ impl FinderIconResolver {
         &self.asset_root
     }
 
-    /// Resolves the official icon first. If the official reference cannot be
-    /// represented by the current renderer, a generic Nexxus fallback is used.
     pub fn resolve_path(&self, reference: &IconReference) -> Option<PathBuf> {
         let official = match reference {
-            IconReference::ExternalPath(path) => path.is_file().then(|| path.clone()),
+            IconReference::ExternalPath(path) => supported_graphic(path).then(|| path.clone()),
             IconReference::ExternalName(name) => self.external_icon_path(name),
             IconReference::NexxusFallback { relative_path, .. } => {
                 self.builtin_icon_path(relative_path)
@@ -65,8 +74,8 @@ impl FinderIconResolver {
         official.or_else(|| self.builtin_icon_path(GENERIC_FALLBACK))
     }
 
-    /// Appends one icon to the component display list. Corrupt/unreadable
-    /// artwork never aborts the Finder; the generic fallback is attempted once.
+    /// Corrupt or unsupported graphics do not abort the Finder. A generic
+    /// Nexxus icon is attempted once before the row is left without artwork.
     pub fn paint(&self, list: &mut DisplayList, reference: &IconReference, rect: LogicalRect) {
         let Some(path) = self.resolve_path(reference) else {
             return;
@@ -75,7 +84,6 @@ impl FinderIconResolver {
             push_graphic(list, rect, asset);
             return;
         }
-
         let Some(fallback) = self.builtin_icon_path(GENERIC_FALLBACK) else {
             return;
         };
@@ -94,38 +102,23 @@ impl FinderIconResolver {
     }
 
     fn external_icon_path(&self, name: &str) -> Option<PathBuf> {
-        let direct = Path::new(name);
-        if direct.is_absolute() && direct.is_file() {
-            return Some(direct.to_path_buf());
+        let path = Path::new(name);
+        if path.is_absolute() && supported_graphic(path) {
+            return Some(path.to_path_buf());
         }
 
-        // Stage 14 currently has no user-selectable application icon theme.
-        // The Freedesktop lookup contract always ends in hicolor, so this
-        // deterministic baseline preserves application-provided artwork while
-        // keeping theme policy out of the Finder module.
-        const SUBDIRS: &[&str] = &[
-            "hicolor/scalable/apps",
-            "hicolor/symbolic/apps",
-            "hicolor/256x256/apps",
-            "hicolor/128x128/apps",
-            "hicolor/64x64/apps",
-            "hicolor/48x48/apps",
-            "hicolor/32x32/apps",
-            "hicolor/24x24/apps",
-            "hicolor/16x16/apps",
-        ];
+        // No application-icon theme selector exists yet in the Nexxus contract.
+        // Freedesktop lookup always ends at `hicolor`; using it here provides a
+        // deterministic baseline without inventing theme policy in Stage 14.
         for root in &self.icon_roots {
-            for subdir in SUBDIRS {
-                if let Some(candidate) = named_candidate(root.join(subdir), name) {
+            for subdir in HICOLOR_APP_DIRS {
+                if let Some(candidate) = named_candidate(&root.join(subdir), name) {
                     return Some(candidate);
                 }
             }
         }
-
-        // `/usr/share/pixmaps` remains a widely used unthemed compatibility
-        // location and is checked only after the hicolor roots.
         for root in pixmap_roots() {
-            if let Some(candidate) = named_candidate(root, name) {
+            if let Some(candidate) = named_candidate(&root, name) {
                 return Some(candidate);
             }
         }
@@ -150,9 +143,16 @@ impl Default for FinderIconResolver {
     }
 }
 
-fn named_candidate(directory: PathBuf, name: &str) -> Option<PathBuf> {
-    let declared = Path::new(name);
-    if declared.extension().is_some() {
+/// Icon names can contain dots (`org.example.App`), so only a *known graphic*
+/// suffix is treated as an extension; otherwise `.png`/`.svg` are appended.
+fn named_candidate(directory: &Path, name: &str) -> Option<PathBuf> {
+    let has_supported_extension = Path::new(name)
+        .extension()
+        .and_then(|value| value.to_str())
+        .is_some_and(|extension| {
+            extension.eq_ignore_ascii_case("png") || extension.eq_ignore_ascii_case("svg")
+        });
+    if has_supported_extension {
         let candidate = directory.join(name);
         return supported_graphic(&candidate).then_some(candidate);
     }
@@ -176,8 +176,7 @@ fn supported_graphic(path: &Path) -> bool {
 }
 
 fn load_graphic(path: &Path) -> Option<GraphicAsset> {
-    let metadata = fs::metadata(path).ok()?;
-    if metadata.len() > MAX_ICON_FILE_BYTES {
+    if fs::metadata(path).ok()?.len() > MAX_ICON_FILE_BYTES {
         return None;
     }
     let bytes = fs::read(path).ok()?;
@@ -188,11 +187,11 @@ fn load_graphic(path: &Path) -> Option<GraphicAsset> {
     {
         return Some(GraphicAsset::Svg(bytes));
     }
-
     let decoded = image::load_from_memory(&bytes).ok()?.to_rgba8();
     let (width, height) = decoded.dimensions();
-    let image = ImageData::new(width, height, decoded.into_raw()).ok()?;
-    Some(GraphicAsset::Raster(image))
+    Some(GraphicAsset::Raster(
+        ImageData::new(width, height, decoded.into_raw()).ok()?,
+    ))
 }
 
 fn push_graphic(list: &mut DisplayList, rect: LogicalRect, asset: GraphicAsset) {
@@ -216,11 +215,9 @@ fn xdg_icon_roots() -> Vec<PathBuf> {
                 .unwrap_or_else(|| home.join(".local/share"))
                 .join("icons"),
         );
-        // Legacy user icon location retained for desktop compatibility.
         roots.push(home.join(".icons"));
     }
-    let data_dirs = data_dirs();
-    roots.extend(data_dirs.into_iter().map(|path| path.join("icons")));
+    roots.extend(data_dirs().into_iter().map(|path| path.join("icons")));
     roots
 }
 
@@ -283,7 +280,7 @@ mod tests {
     }
 
     #[test]
-    fn resolves_named_official_icon_from_hicolor_before_generic_fallback() {
+    fn dotted_named_icon_resolves_from_hicolor_before_fallback() {
         let root = temp_root("official");
         let icon_root = root.join("xdg-icons");
         let official = icon_root.join("hicolor/48x48/apps/org.example.App.svg");
