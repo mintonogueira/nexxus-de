@@ -1,0 +1,17 @@
+[package]
+name = "nexxus-window-chrome"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+nexxus-assets.workspace = true
+nexxus-backend-api.workspace = true
+nexxus-backend-x11.workspace = true
+nexxus-tiling.workspace = true
+nexxus-ui.workspace = true
+nexxus-wm.workspace = true
+nexxus-workspaces.workspace = true
+thiserror.workspace = true
+x11rb.workspace = true
