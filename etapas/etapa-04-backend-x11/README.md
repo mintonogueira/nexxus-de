@@ -1,9 +1,15 @@
 # Nexxus — Etapa 04 — Backend X11
 
-**Status:** `PRONTA_PARA_INICIAR`
+**Status:** `EM_IMPLEMENTACAO`
 
-Etapa subsequente à **Etapa 03 — Session Runtime**.
+Implementação do primeiro backend gráfico concreto do Nexxus. Esta etapa conecta o `nexxus-wm` ao X11 sem incorporar Workspace Manager, Tiling Engine, UI final, Wayland ou Portals.
 
-Referência de entrada: `etapas/etapa-03-session-runtime/docs/HANDOFF_FINAL_ETAPA_03.md`.
+## Decisões técnicas vigentes
 
-O desenvolvimento da Etapa 04 ocorrerá exclusivamente em uma nova conversa: `NEXXUS - Etapa 04 - Backend X11`.
+- binding X11: `x11rb 0.14.0`, conexão Rust pura, sem feature `allow-unsafe-code`;
+- crate da etapa mantém `#![forbid(unsafe_code)]`;
+- EWMH/ICCCM pertinentes são tratados no adapter X11;
+- as janelas não são reparentadas nem decoradas nesta etapa, preservando CSD/SSD e a fronteira da futura Etapa 09 — Window Chrome;
+- compositor X11 não é ativado: gerenciamento de janelas desta etapa não o exige tecnicamente e efeitos visuais continuam proibidos.
+
+Branch de implementação: `etapa-04-backend-x11-impl`.

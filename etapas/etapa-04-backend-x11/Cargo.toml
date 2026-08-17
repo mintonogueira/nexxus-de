@@ -1,0 +1,17 @@
+[workspace]
+members = ["crates/nexxus-backend-x11"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "GPL-3.0-only"
+
+[workspace.dependencies]
+nexxus-backend-api = { path = "../etapa-01-core-fundacao/crates/nexxus-backend-api" }
+nexxus-core = { path = "../etapa-01-core-fundacao/crates/nexxus-core" }
+nexxus-wm = { path = "../etapa-02-window-manager-core/crates/nexxus-wm" }
+nexxus-session = { path = "../etapa-03-session-runtime/crates/nexxus-session" }
+thiserror = "2"
+x11rb = { version = "0.14.0", default-features = false }

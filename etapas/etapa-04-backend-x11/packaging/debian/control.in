@@ -1,0 +1,9 @@
+Package: nexxus-backend-x11
+Version: @VERSION@
+Section: x11
+Priority: optional
+Architecture: @ARCH@
+Maintainer: Nexxus Project
+Depends: libc6, libgcc-s1
+Description: Nexxus concrete X11 window-management backend
+ Rust X11 backend implementing the Etapa 04 EWMH/ICCCM integration contract.

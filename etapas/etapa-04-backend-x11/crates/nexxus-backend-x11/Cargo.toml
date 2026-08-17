@@ -1,0 +1,20 @@
+[package]
+name = "nexxus-backend-x11"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+nexxus-backend-api.workspace = true
+nexxus-core.workspace = true
+nexxus-wm.workspace = true
+thiserror.workspace = true
+x11rb.workspace = true
+
+[dev-dependencies]
+nexxus-session.workspace = true
+
+[[bin]]
+name = "nexxus-x11-backend-check"
+path = "src/bin/nexxus-x11-backend-check.rs"

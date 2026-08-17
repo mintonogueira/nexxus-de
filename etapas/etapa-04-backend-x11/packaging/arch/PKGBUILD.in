@@ -1,0 +1,13 @@
+pkgname=nexxus-backend-x11
+pkgver=0.1.0
+pkgrel=1
+pkgdesc='Nexxus concrete X11 window-management backend'
+arch=('x86_64')
+license=('GPL-3.0-only')
+depends=('glibc')
+source=('nexxus-x11-backend-check')
+sha256sums=('@BINARY_SHA256@')
+
+package() {
+    install -Dm755 "$srcdir/nexxus-x11-backend-check" "$pkgdir/usr/bin/nexxus-x11-backend-check"
+}
