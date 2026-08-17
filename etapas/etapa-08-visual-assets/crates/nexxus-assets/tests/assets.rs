@@ -62,7 +62,9 @@ fn wallpapers_are_local_opaque_vectors() {
         assert!(text.contains(r#"viewBox="0 0 1920 1080""#));
         assert!(!text.contains("<script"));
         assert!(!text.contains("<image"));
-        assert!(!text.contains("http://") && !text.contains("https://"));
+        // xmlns="http://www.w3.org/2000/svg" is the required SVG namespace;
+        // only resource-bearing href attributes are forbidden here.
+        assert!(!text.contains(" href=") && !text.contains("xlink:href"));
         assert!(!text.contains("opacity=") && !text.contains("<filter"));
     }
 }
