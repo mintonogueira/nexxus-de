@@ -57,7 +57,9 @@ impl SessionConfig {
         &self,
         cli_backend: Option<BackendKind>,
     ) -> Result<BackendKind, SessionConfigError> {
-        cli_backend.or(self.backend).ok_or(SessionConfigError::BackendRequired)
+        cli_backend
+            .or(self.backend)
+            .ok_or(SessionConfigError::BackendRequired)
     }
 }
 
