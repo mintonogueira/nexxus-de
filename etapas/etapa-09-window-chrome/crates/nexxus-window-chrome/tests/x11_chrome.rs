@@ -4,9 +4,7 @@ use std::time::Duration;
 
 use nexxus_backend_x11::X11Service;
 use nexxus_ui::{ScaleFactor, Theme};
-use nexxus_window_chrome::{
-    AssetSource, NoopChromeHooks, X11ChromeAdapter, maximize_restore,
-};
+use nexxus_window_chrome::{AssetSource, NoopChromeHooks, X11ChromeAdapter, maximize_restore};
 use nexxus_wm::{PresentationState, WindowId};
 use x11rb::COPY_DEPTH_FROM_PARENT;
 use x11rb::connection::Connection;

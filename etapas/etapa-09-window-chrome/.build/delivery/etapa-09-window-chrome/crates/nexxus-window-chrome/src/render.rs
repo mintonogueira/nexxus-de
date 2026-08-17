@@ -202,12 +202,10 @@ impl ChromePainter {
             } else {
                 palette.surface_alt
             }
+        } else if state.active {
+            palette.surface_alt
         } else {
-            if state.active {
-                palette.surface_alt
-            } else {
-                palette.surface
-            }
+            palette.surface
         };
         list.push(DrawCommand::FillRect {
             rect,
