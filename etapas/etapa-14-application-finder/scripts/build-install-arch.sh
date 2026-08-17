@@ -24,7 +24,16 @@ install_missing_arch_build_deps() {
     done
     [ "$_missing" != '' ] || { log_msg '[deps] Arch já atendido'; return 0; }
     [ "$PRIVILEGE_CMD" != '' ] || die "dependências ausentes ($_missing) e sudo/doas indisponível"
-    run_logged "$PRIVILEGE_CMD" pacman -S --needed --noconfirm $_missing || die 'pacman falhou'
+
+    # Mirrors Arch podem trocar o pacote entre a sincronização da base e o
+    # download. Um único refresh explícito + retry recupera esse caso sem
+    # esconder uma segunda falha real nem entrar em loop infinito.
+    if run_logged "$PRIVILEGE_CMD" pacman -S --needed --noconfirm $_missing; then
+        return 0
+    fi
+    log_msg '[deps] primeira instalação Arch falhou; atualizando bases e tentando uma única vez'
+    run_logged "$PRIVILEGE_CMD" pacman -Syy --noconfirm || die 'refresh das bases pacman falhou'
+    run_logged "$PRIVILEGE_CMD" pacman -S --needed --noconfirm $_missing || die 'pacman falhou após retry'
 }
 
 preflight_arch
