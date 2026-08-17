@@ -6,7 +6,15 @@ SCRIPT_DIR=$(dirname "$0"); case "$SCRIPT_DIR" in -*) SCRIPT_DIR="./$SCRIPT_DIR"
 ROOT_DIR=$(CDPATH= cd "$SCRIPT_DIR/.." && pwd)
 status=0
 
-for file in "$ROOT_DIR"/scripts/*.sh "$ROOT_DIR"/scripts/lib/*.sh; do
+# Os próprios scripts de auditoria contêm expressões literais usadas para
+# detectar bashisms; auditar essas expressões contra si mesmas gera falso
+# positivo. Os wrappers operacionais continuam cobertos integralmente.
+for file in \
+    "$ROOT_DIR/scripts/build-install-arch.sh" \
+    "$ROOT_DIR/scripts/build-install-debian.sh" \
+    "$ROOT_DIR/scripts/create-delivery.sh" \
+    "$ROOT_DIR/scripts/lib/common.sh"
+do
     [ -f "$file" ] || continue
     first=$(sed -n '1p' "$file")
     [ "$first" = '#!/bin/sh' ] || { printf '%s: shebang não POSIX\n' "$file" >&2; status=1; }
@@ -17,4 +25,4 @@ for file in "$ROOT_DIR"/scripts/*.sh "$ROOT_DIR"/scripts/lib/*.sh; do
 done
 
 [ "$status" -eq 0 ] || exit "$status"
-printf '%s\n' '[ok] wrappers da Etapa 09 compatíveis com /bin/sh POSIX.'
+printf '%s\n' '[ok] wrappers operacionais da Etapa 09 compatíveis com /bin/sh POSIX.'
