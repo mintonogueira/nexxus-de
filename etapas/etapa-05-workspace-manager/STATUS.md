@@ -24,9 +24,13 @@
 - auditorias de POSIX e neutralidade de backend;
 - geração de snapshot e SHA-256 preparada.
 
+## Validação em andamento
+
+A primeira execução de CI (`31985696895`) detectou corretamente uma falha na própria auditoria POSIX: o verificador examinava seu arquivo e identificava como bashism a expressão regular usada para detectar bashisms. A auditoria foi corrigida para não analisar a si própria; nenhuma regra POSIX foi relaxada.
+
 ## Pendente desta etapa
 
-- validação real em CI Arch Linux e Debian;
+- revalidação real em CI Arch Linux e Debian após a correção da auditoria;
 - correções decorrentes da CI, se necessárias;
 - geração/versionamento do snapshot validado;
 - handoff final;
