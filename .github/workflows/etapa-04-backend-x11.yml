@@ -76,3 +76,64 @@ jobs:
           name: etapa-04-arch
           path: etapas/etapa-04-backend-x11/dist/arch/*.pkg.tar.*
           if-no-files-found: error
+
+  delivery:
+    if: github.ref == 'refs/heads/etapa-04-backend-x11-impl'
+    needs: [debian-trixie, archlinux-current]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: etapa-04-backend-x11-impl
+      - name: Baixar pacote Arch validado
+        uses: actions/download-artifact@v5
+        with:
+          name: etapa-04-arch
+          path: /tmp/etapa-04-arch
+      - name: Baixar pacote Debian validado
+        uses: actions/download-artifact@v5
+        with:
+          name: etapa-04-debian
+          path: /tmp/etapa-04-debian
+      - name: Consolidar pacotes e gerar snapshot
+        shell: sh
+        run: |
+          stage="$GITHUB_WORKSPACE/etapas/etapa-04-backend-x11"
+          mkdir -p "$stage/dist/arch" "$stage/dist/debian"
+          rm -f "$stage/dist/arch"/*.pkg.tar.* "$stage/dist/debian"/*.deb
+          arch_package=$(find /tmp/etapa-04-arch -type f -name 'nexxus-backend-x11-*.pkg.tar.*' ! -name '*-debug-*' | head -n 1)
+          debian_package=$(find /tmp/etapa-04-debian -type f -name 'nexxus-backend-x11_*.deb' | head -n 1)
+          lock_file=$(find /tmp/etapa-04-debian -type f -name 'Cargo.lock' | head -n 1)
+          [ -f "$arch_package" ] || { echo 'pacote Arch validado não encontrado' >&2; exit 1; }
+          [ -f "$debian_package" ] || { echo 'pacote Debian validado não encontrado' >&2; exit 1; }
+          [ -f "$lock_file" ] || { echo 'Cargo.lock validado não encontrado' >&2; exit 1; }
+          cp "$arch_package" "$stage/dist/arch/"
+          cp "$debian_package" "$stage/dist/debian/"
+          cp "$lock_file" "$stage/Cargo.lock"
+          cd "$stage"
+          sh ./scripts/check-posix.sh
+          sh ./scripts/create-delivery.sh
+      - name: Exportar snapshot da entrega
+        uses: actions/upload-artifact@v4
+        with:
+          name: etapa-04-delivery
+          path: |
+            etapas/etapa-04-backend-x11/entrega/*.tar.gz
+            etapas/etapa-04-backend-x11/entrega/*.sha256
+          if-no-files-found: error
+      - name: Versionar pacotes e snapshot validados
+        shell: sh
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add etapas/etapa-04-backend-x11/Cargo.lock \
+                  etapas/etapa-04-backend-x11/dist \
+                  etapas/etapa-04-backend-x11/entrega
+          if git diff --cached --quiet; then
+            echo 'Artefatos já correspondem ao estado validado.'
+            exit 0
+          fi
+          git commit -m 'build(etapa-04): publica pacotes e snapshot validados [skip ci]'
+          git push origin HEAD:etapa-04-backend-x11-impl
