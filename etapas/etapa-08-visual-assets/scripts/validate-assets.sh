@@ -29,9 +29,14 @@ find "$ROOT_DIR/assets" -type f \( -name '*.ttf' -o -name '*.otf' -o -name '*.wo
 [ -f "$ROOT_DIR/assets/manifests/app-fallbacks.toml" ] || die 'fallback de aplicações ausente'
 [ -f "$ROOT_DIR/assets/manifests/mime-fallbacks.toml" ] || die 'fallback MIME ausente'
 
+# O namespace XML/SVG obrigatório contém uma URI HTTP, mas não é um recurso
+# externo. Ele é removido apenas da cópia de auditoria antes de procurar URLs,
+# hrefs, conteúdo ativo, filtros ou transparência decorativa.
 validate_no_active_or_external_content() {
     file=$1
-    if grep -Eiq '<[[:space:]]*(script|image|filter)|https?://|xlink:href|[[:space:]]opacity=' "$file"; then
+    audit_file="$tmp_dir/svg-audit.$$.txt"
+    sed 's#xmlns="http://www.w3.org/2000/svg"##g' "$file" > "$audit_file"
+    if grep -Eiq '<[[:space:]]*(script|image|filter)|https?://|xlink:href|[[:space:]]href=|[[:space:]]opacity=' "$audit_file"; then
         die "conteúdo SVG proibido ou externo em $file"
     fi
 }
