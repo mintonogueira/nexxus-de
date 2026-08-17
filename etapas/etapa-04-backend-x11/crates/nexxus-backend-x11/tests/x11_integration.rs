@@ -159,7 +159,11 @@ fn manages_a_real_x11_window_with_ewmh_icccm_and_no_reparenting() {
         .unwrap()
         .reply()
         .unwrap();
-    assert!(supporting.value32().is_some_and(|mut value| value.next().is_some()));
+    assert!(
+        supporting
+            .value32()
+            .is_some_and(|mut value| value.next().is_some())
+    );
     wait_until(|| {
         client
             .get_property(
