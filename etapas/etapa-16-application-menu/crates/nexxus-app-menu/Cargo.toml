@@ -1,0 +1,12 @@
+[package]
+name = "nexxus-app-menu"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+nexxus-panel = { path = "../../../etapa-15-panel-core/crates/nexxus-panel" }
+nexxus-xdg-application-index = { path = "../../../etapa-12-xdg-application-index/crates/nexxus-xdg-application-index" }
+
+[dev-dependencies]
+tempfile = "3"
