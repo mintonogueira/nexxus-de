@@ -1,3 +1,3 @@
-# NEXXUS DE
+# Nexxus DE
 
-Desktop Environment modular, minimalista e orientado a tiling
+Desktop Environment modular, minimalista e orientado a tiling.
