@@ -1,0 +1,14 @@
+[package]
+name = "nexxus-app-finder"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+image.workspace = true
+nexxus-shortcuts.workspace = true
+nexxus-ui.workspace = true
+nexxus-xdg-application-index.workspace = true
+thiserror.workspace = true
+zbus.workspace = true
