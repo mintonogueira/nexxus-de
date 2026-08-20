@@ -1,0 +1,49 @@
+name: Etapa 16 - Application Menu
+
+on:
+  push:
+    branches:
+      - etapa-16-application-menu-impl-v2
+    paths:
+      - 'etapas/etapa-16-application-menu/**'
+      - '.github/workflows/etapa-16-application-menu.yml'
+  pull_request:
+    paths:
+      - 'etapas/etapa-16-application-menu/**'
+      - '.github/workflows/etapa-16-application-menu.yml'
+
+jobs:
+  rust:
+    name: Rust ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Arch Linux
+            image: archlinux:latest
+            install: pacman -Syu --noconfirm rust cargo
+          - name: Debian Trixie
+            image: debian:trixie
+            install: apt-get update && apt-get install -y --no-install-recommends rustc cargo rustfmt clippy ca-certificates
+    container:
+      image: ${{ matrix.image }}
+    defaults:
+      run:
+        working-directory: etapas/etapa-16-application-menu
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependências
+        run: ${{ matrix.install }}
+      - name: Versões
+        run: rustc --version && cargo --version
+      - name: Format
+        run: cargo fmt --all -- --check
+      - name: Testes
+        run: cargo test --workspace --all-targets
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Rustdoc
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --workspace --no-deps
