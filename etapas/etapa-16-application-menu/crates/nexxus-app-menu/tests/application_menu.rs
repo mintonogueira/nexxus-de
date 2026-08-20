@@ -1,7 +1,7 @@
 use std::fs;
 
 use nexxus_app_menu::{
-    ApplicationMenuPanelPlugin, ApplicationMenuState, MenuSection, APPLICATION_MENU_PLUGIN_ID,
+    APPLICATION_MENU_PLUGIN_ID, ApplicationMenuPanelPlugin, ApplicationMenuState, MenuSection,
 };
 use nexxus_panel::{PanelPlugin, PluginApiVersion, PluginRegistry};
 use nexxus_xdg_application_index::{ApplicationIndexConfig, ApplicationRoot, LaunchContext, scan};
