@@ -1,0 +1,11 @@
+[package]
+name = "nexxus-panel"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Nexxus fixed bottom panel core and versioned plugin host"
+
+[lib]
+name = "nexxus_panel"
+path = "src/lib.rs"
